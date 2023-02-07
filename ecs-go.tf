@@ -78,7 +78,6 @@ resource "aws_ecs_service" "api-go-service" {
   }
 }
 
-/*
 
 resource "aws_lb_listener_rule" "api-go-rule" {
   listener_arn = aws_lb_listener.backend-go-alb-listener.arn
@@ -94,5 +93,5 @@ resource "aws_lb_listener_rule" "api-go-rule" {
       values = ["*"]
     }
   }
-}*/
+}
 // web api
