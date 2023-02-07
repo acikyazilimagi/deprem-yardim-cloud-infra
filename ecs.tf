@@ -117,15 +117,15 @@ resource "aws_ecs_task_definition" "api-TD" {
   family                   = "api-TD"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 2048
+  memory                   = 4096
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "nginx"
-      cpu    = 512
-      memory = 1024
+      image  = "nginx" //bunu düzelticem
+      cpu    = 2048
+      memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -136,9 +136,14 @@ resource "aws_ecs_task_definition" "api-TD" {
         }
       }
       essential = true
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+        }
+      ]
     }
   ])
-
 }
 
 resource "aws_lb_target_group" "api-tg" {
