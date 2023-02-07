@@ -169,7 +169,7 @@ resource "aws_ecr_lifecycle_policy" "ecr-policy" {
 }
 EOF
 }
-
+/*
 
 module "iam" {
   source   = "./iam"
@@ -185,4 +185,4 @@ module "opensearch" {
   private_subnets = vpc.private_subnets
   iam_user_arn    = iam.iam_user_arn
   iam_user_name   = iam.iam_user_name
-}
+}*/
