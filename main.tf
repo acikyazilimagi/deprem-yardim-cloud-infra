@@ -1,7 +1,7 @@
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = "afet"
+    organization = "deprem-yardim-cloud-infra"
   }
   required_providers {
     aws = {
