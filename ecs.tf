@@ -88,8 +88,8 @@ resource "aws_ecs_task_definition" "telegrambot-TD" {
 
 }
 
-resource "aws_ecs_service" "tegilegrambot-service" {
-  name            = "monolith-service"
+resource "aws_ecs_service" "telegram-service" {
+  name            = "telegram-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.telegrambot-TD.id
   desired_count   = 1
@@ -139,7 +139,7 @@ resource "aws_ecs_task_definition" "worker-TD" {
 }
 
 resource "aws_ecs_service" "worker-service" {
-  name            = "monolith-service"
+  name            = "worker-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.worker-TD.id
   desired_count   = 1
