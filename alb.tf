@@ -42,7 +42,7 @@ resource "aws_lb" "backend-alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.backend-alb-sg.id]
-  subnets            = [aws_subnet.subnet-a.id, aws_subnet.subnet-b.id]
+  subnets            = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
 
   enable_deletion_protection = true
 
@@ -62,7 +62,7 @@ resource "aws_lb_listener" "backend-alb-listener" {
     target_group_arn = aws_lb_target_group.api-tg.arn
   }
   depends_on = [
-    aws_lb.api-alb
+    aws_lb.backend-alb
   ]
 }
 
