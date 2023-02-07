@@ -156,6 +156,7 @@ resource "aws_ecs_service" "api-service" {
 }
 
 
+
 resource "aws_lb_listener_rule" "api-rule" {
   listener_arn = aws_lb_listener.backend-alb-listener.arn
   priority     = 100

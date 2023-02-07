@@ -37,7 +37,7 @@ resource "aws_security_group" "backend-alb-sg" {
 
 //------------- backend services ----------
 //alb
-rresource "aws_lb" "backend-alb" {
+resource "aws_lb" "backend-alb" {
   name               = "backend-alb"
   internal           = false
   load_balancer_type = "application"
