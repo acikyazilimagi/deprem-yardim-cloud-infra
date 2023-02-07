@@ -45,10 +45,6 @@ resource "aws_route_table" "route-table" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  route {
-    cidr_block                = var.mongo_cidr_block
-    vpc_peering_connection_id = var.mongo_peering_connection_id
-  }
 
   depends_on = [
     aws_vpc.vpc,
