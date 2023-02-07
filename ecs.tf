@@ -59,55 +59,6 @@ resource "aws_security_group" "service-sg" {
 }
 
 
-//teelgram bot
-resource "aws_ecs_task_definition" "telegrambot-TD" {
-  family                   = "telegrambot-TD"
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 1024
-  execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
-  container_definitions = jsonencode([
-    {
-      name   = "container-name"
-      image  = "nginx"
-      cpu    = 512
-      memory = 1024
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/telegrambot"
-          awslogs-region        = var.region
-          awslogs-stream-prefix = "ecs"
-        }
-      }
-      essential = true
-    }
-  ])
-
-}
-
-resource "aws_ecs_service" "telegram-service" {
-  name            = "telegram-service"
-  cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.telegrambot-TD.id
-  desired_count   = 1
-  depends_on = [
-    aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.telegrambot-TD,
-  ]
-  launch_type = "FARGATE"
-
-  network_configuration {
-    subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
-    security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
-  }
-}
-
-//teelgram bot
-
 
 //worker
 resource "aws_ecs_task_definition" "worker-TD" {
@@ -159,3 +110,65 @@ resource "aws_ecs_service" "worker-service" {
 //worker
 
 
+//web api
+
+resource "aws_lb_target_group" "api-tg" {
+  name        = "api-tg"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.vpc.id
+  health_check {
+    enabled  = true
+    path     = "/core/health/"
+    port     = 80
+    protocol = "HTTP"
+  }
+  tags = {
+    Name        = "api-tg"
+    Environment = var.environment
+  }
+}
+
+resource "aws_ecs_service" "api-service" {
+  name            = "api-service"
+  cluster         = aws_ecs_cluster.base-cluster.id
+  task_definition = aws_ecs_task_definition.api-TD.id
+  desired_count   = 1
+  depends_on = [
+    aws_ecs_cluster.base-cluster,
+    aws_ecs_task_definition.api-TD,
+    aws_lb_target_group.api-tg,
+  ]
+  launch_type = "FARGATE"
+
+  network_configuration {
+    subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
+    security_groups  = [aws_security_group.service-sg.id]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.api-tg.arn
+    container_name   = "container-name"
+    container_port   = 80
+  }
+}
+
+
+resource "aws_lb_listener_rule" "api-rule" {
+  listener_arn = aws_lb_listener.backend-alb-listener.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api-tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+}
+// web api
