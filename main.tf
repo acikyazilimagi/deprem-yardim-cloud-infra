@@ -171,3 +171,18 @@ EOF
 }
 
 
+module "iam" {
+  source   = "./iam"
+  username = "${var.name}-user"
+}
+
+module "opensearch" {
+  source          = "./opensearch"
+  name            = "${var.name}-os"
+  region          = var.region
+  vpc_id          = vpc.id
+  public_subnets  = vpc.public_subnets
+  private_subnets = vpc.private_subnets
+  iam_user_arn    = iam.iam_user_arn
+  iam_user_name   = iam.iam_user_name
+}
