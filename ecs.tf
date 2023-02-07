@@ -112,6 +112,35 @@ resource "aws_ecs_service" "worker-service" {
 
 //web api
 
+
+resource "aws_ecs_task_definition" "api-TD" {
+  family                   = "api-TD"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 512
+  memory                   = 1024
+  execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
+  container_definitions = jsonencode([
+    {
+      name   = "container-name"
+      image  = "nginx"
+      cpu    = 512
+      memory = 1024
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-create-group  = "true"
+          awslogs-group         = "/ecs/api"
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+      essential = true
+    }
+  ])
+
+}
+
 resource "aws_lb_target_group" "api-tg" {
   name        = "api-tg"
   port        = 80
