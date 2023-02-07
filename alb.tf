@@ -70,7 +70,7 @@ resource "aws_lb_listener" "backend-alb-listener" {
 
 
 
-/
+
 
 //------------- backend go services ----------
 //alb
