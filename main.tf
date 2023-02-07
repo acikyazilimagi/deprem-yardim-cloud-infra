@@ -1,8 +1,8 @@
 terraform {
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "deprem-yardim-cloud-infra"
-  }
+  # backend "remote" {
+  #   hostname     = "app.terraform.io"
+  #   organization = "deprem-yardim-cloud-infra"
+  # }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -180,9 +180,9 @@ module "opensearch" {
   source          = "./opensearch"
   name            = "${var.name}-os"
   region          = var.region
-  vpc_id          = vpc.id
-  public_subnets  = vpc.public_subnets
-  private_subnets = vpc.private_subnets
-  iam_user_arn    = iam.iam_user_arn
-  iam_user_name   = iam.iam_user_name
+  vpc_id          = aws_vpc.vpc.id
+  public_subnets  = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id] 
+  private_subnets = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
+  iam_user_arn    = module.iam.iam_user_arn
+  iam_user_name   = module.iam.iam_user_name
 }

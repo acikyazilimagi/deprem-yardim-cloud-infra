@@ -19,3 +19,9 @@ variable "region" {
   type    = string
   default = "us-east-2"
 }
+
+variable "name" {
+  default = "depremyardim"
+  type = string
+  description = "(optional) describe your variable"
+}
