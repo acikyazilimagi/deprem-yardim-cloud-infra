@@ -1,6 +1,6 @@
 
 //web api
-/*
+
 
 resource "aws_ecs_task_definition" "api-go-TD" {
   family                   = "api-go-TD"
@@ -96,4 +96,3 @@ resource "aws_lb_listener_rule" "api-go-rule" {
   }
 }
 // web api
-*/
