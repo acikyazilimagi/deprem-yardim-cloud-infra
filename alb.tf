@@ -70,12 +70,12 @@ resource "aws_lb_listener" "backend-alb-listener" {
 
 
 
-
+/*
 
 //------------- backend go services ----------
 //alb
 resource "aws_lb" "backend-go-alb" {
-  name               = "backend-alb"
+  name               = "backend-go-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.backend-alb-sg.id]
@@ -105,3 +105,4 @@ resource "aws_lb_listener" "backend-go-alb-listener" {
 
 //------------- backend go services ----------
 
+*/
