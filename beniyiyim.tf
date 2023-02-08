@@ -27,8 +27,8 @@ resource "aws_ecs_task_definition" "beniyiyim-TD" {
       essential = true
       portMappings = [
         {
-          containerPort = 8000
-          hostPort      = 8000
+          containerPort = 80
+          hostPort      = 80
         }
       ]
     }
@@ -37,14 +37,14 @@ resource "aws_ecs_task_definition" "beniyiyim-TD" {
 
 resource "aws_lb_target_group" "beniyiyim-tg" {
   name        = "beniyiyim-tg"
-  port        = 8000
+  port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
     path     = "/"
-    port     = 8000
+    port     = 80
     protocol = "HTTP"
   }
   tags = {
@@ -74,7 +74,7 @@ resource "aws_ecs_service" "beniyiyim-service" {
   load_balancer {
     target_group_arn = aws_lb_target_group.beniyiyim-tg.arn
     container_name   = "container-name"
-    container_port   = 8000
+    container_port   = 80
   }
 }
 
