@@ -37,7 +37,7 @@ resource "aws_ecs_task_definition" "api-go-TD" {
 
 resource "aws_lb_target_group" "api-go-tg" {
   name        = "api-go-tg"
-  port        = 8000
+  port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
