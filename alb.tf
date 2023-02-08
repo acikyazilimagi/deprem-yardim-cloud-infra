@@ -167,7 +167,7 @@ resource "aws_lb" "beniyiyim-alb" {
 //listener
 resource "aws_lb_listener" "beniyiyim-alb-listener" {
   load_balancer_arn = aws_lb.beniyiyim-alb.arn
-  port              = "8000"
+  port              = "80"
   protocol          = "HTTP"
 
   default_action {
