@@ -168,7 +168,7 @@ resource "aws_ecs_service" "api-service" {
   name            = "api-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.api-TD.id
-  desired_count   = 1
+  desired_count   = 30
   depends_on = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.api-TD,
