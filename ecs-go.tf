@@ -27,8 +27,8 @@ resource "aws_ecs_task_definition" "api-go-TD" {
       essential = true
       portMappings = [
         {
-          containerPort = 8000
-          hostPort      = 8000
+          containerPort = 80
+          hostPort      = 80
         }
       ]
     }
@@ -74,7 +74,7 @@ resource "aws_ecs_service" "api-go-service" {
   load_balancer {
     target_group_arn = aws_lb_target_group.api-go-tg.arn
     container_name   = "container-name"
-    container_port   = 8000
+    container_port   = 80
   }
 }
 
