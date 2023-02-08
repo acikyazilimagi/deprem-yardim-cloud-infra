@@ -79,7 +79,7 @@ resource "aws_lb" "backend-go-alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.backend-alb-sg.id]
-  subnets            = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
+  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
 
