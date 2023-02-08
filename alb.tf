@@ -12,6 +12,14 @@ resource "aws_security_group" "backend-alb-sg" {
     ipv6_cidr_blocks = ["::/0"]
   }
   ingress {
+    description      = "HTTPS"
+    from_port        = 3000
+    to_port          = 3000
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  ingress {
     description      = "HTTP"
     from_port        = 80
     to_port          = 80
@@ -105,3 +113,36 @@ resource "aws_lb_listener" "backend-go-alb-listener" {
 
 //------------- backend go services ----------
 
+
+//------------- grafana services ----------
+//alb
+resource "aws_lb" "grafana-alb" {
+  name               = "grafana-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.backend-alb-sg.id]
+  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Name = "grafana-alb"
+  }
+}
+
+//listener
+resource "aws_lb_listener" "grafana-alb-listener" {
+  load_balancer_arn = aws_lb.grafana-alb.arn
+  port              = "3000"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.grafana-tg.arn
+  }
+  depends_on = [
+    aws_lb.grafana-alb
+  ]
+}
+
+//------------- grafana services ----------
