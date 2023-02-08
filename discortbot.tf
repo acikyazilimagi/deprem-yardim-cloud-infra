@@ -17,7 +17,7 @@ resource "aws_ecs_task_definition" "discordbot-TD" {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/worker"
+          awslogs-group         = "/ecs/discordbot"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
