@@ -12,7 +12,7 @@ resource "aws_ecs_task_definition" "grafana-TD" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "grafana" //bunu düzelticem
+      image  = "grafana/grafana" //bunu düzelticem
       cpu    = 2048
       memory = 4096
       logConfiguration = {
