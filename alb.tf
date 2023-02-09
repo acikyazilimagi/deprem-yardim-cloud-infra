@@ -180,3 +180,38 @@ resource "aws_lb_listener" "beniyiyim-alb-listener" {
 }
 
 //------------- beniyiyim services ----------
+
+
+
+//------------- label-studio services ----------
+//alb
+resource "aws_lb" "label-studio-alb" {
+  name               = "label-studio-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.backend-alb-sg.id]
+  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Name = "label-studio-alb"
+  }
+}
+
+//listener
+resource "aws_lb_listener" "label-studio-alb-listener" {
+  load_balancer_arn = aws_lb.label-studio-alb.arn
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.label-studio-tg.arn
+  }
+  depends_on = [
+    aws_lb.label-studio-alb
+  ]
+}
+
+//------------- label-studio services ----------
