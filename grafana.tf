@@ -43,7 +43,7 @@ resource "aws_lb_target_group" "grafana-tg" {
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/healthcheck/"
+    path     = "/"
     port     = 3000
     protocol = "HTTP"
   }
