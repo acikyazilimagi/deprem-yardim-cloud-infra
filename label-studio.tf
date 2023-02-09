@@ -56,7 +56,7 @@ resource "aws_ecs_service" "label-studio-service" {
   name            = "label-studio-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.label-studio-TD.id
-  desired_count   = 15
+  desired_count   = 1
   depends_on      = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.label-studio-TD,
