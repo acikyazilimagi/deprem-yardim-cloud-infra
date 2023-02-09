@@ -57,7 +57,7 @@ resource "aws_ecs_service" "beniyiyim-service" {
   name            = "beniyiyim-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.beniyiyim-TD.id
-  desired_count   = 1
+  desired_count   = 2
   depends_on = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.beniyiyim-TD,
