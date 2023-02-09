@@ -246,7 +246,7 @@ resource "aws_lb" "prometheus-alb" {
 //listener
 resource "aws_lb_listener" "prometheus-alb-listener" {
   load_balancer_arn = aws_lb.prometheus-alb.arn
-  port              = "3000"
+  port              = "9090"
   protocol          = "HTTP"
 
   default_action {
