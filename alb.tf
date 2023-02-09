@@ -131,40 +131,6 @@ resource "aws_lb_listener" "backend-go-alb-listener" {
 //------------- backend go services ----------
 
 
-//------------- grafana services ----------
-//alb
-resource "aws_lb" "grafana-alb" {
-  name               = "grafana-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.backend-alb-sg.id]
-  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
-
-  enable_deletion_protection = true
-
-  tags = {
-    Name = "grafana-alb"
-  }
-}
-
-//listener
-resource "aws_lb_listener" "grafana-alb-listener" {
-  load_balancer_arn = aws_lb.grafana-alb.arn
-  port              = "3000"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.grafana-tg.arn
-  }
-  depends_on = [
-    aws_lb.grafana-alb
-  ]
-}
-
-//------------- grafana services ----------
-
-
 //------------- beniyiyim services ----------
 //alb
 resource "aws_lb" "beniyiyim-alb" {
@@ -232,38 +198,3 @@ resource "aws_lb_listener" "label-studio-alb-listener" {
 }
 
 //------------- label-studio services ----------
-
-
-
-//------------- prometheus services ----------
-//alb
-resource "aws_lb" "prometheus-alb" {
-  name               = "prometheus-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.backend-alb-sg.id]
-  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
-
-  enable_deletion_protection = true
-
-  tags = {
-    Name = "prometheus-alb"
-  }
-}
-
-//listener
-resource "aws_lb_listener" "prometheus-alb-listener" {
-  load_balancer_arn = aws_lb.prometheus-alb.arn
-  port              = "9090"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.prometheus-tg.arn
-  }
-  depends_on = [
-    aws_lb.prometheus-alb
-  ]
-}
-
-//------------- prometheus services ----------
