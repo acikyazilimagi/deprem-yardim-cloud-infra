@@ -28,7 +28,7 @@ resource "aws_ecs_task_definition" "go-consumer-TD" {
 resource "aws_ecs_service" "go-consumer-service" {
   name            = "go-consumer-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.go-consumer-TD.id
+  task_definition = aws_ecs_task_definition.go-consumer-TD.arn
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,

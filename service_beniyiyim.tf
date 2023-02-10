@@ -56,7 +56,7 @@ resource "aws_lb_target_group" "beniyiyim-tg" {
 resource "aws_ecs_service" "beniyiyim-service" {
   name            = "beniyiyim-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.beniyiyim-TD.id
+  task_definition = aws_ecs_task_definition.beniyiyim-TD.arn
   desired_count   = 2
   depends_on = [
     aws_ecs_cluster.base-cluster,

@@ -52,7 +52,7 @@ resource "aws_lb_target_group" "depremio-tg" {
 resource "aws_ecs_service" "depremio-service" {
   name            = "depremio-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.depremio-TD.id
+  task_definition = aws_ecs_task_definition.depremio-TD.arn
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,

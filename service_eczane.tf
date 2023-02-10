@@ -52,7 +52,7 @@ resource "aws_lb_target_group" "eczane-tg" {
 resource "aws_ecs_service" "eczane-service" {
   name            = "eczane-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.eczane-TD.id
+  task_definition = aws_ecs_task_definition.eczane-TD.arn
   desired_count   = 2
   depends_on = [
     aws_ecs_cluster.base-cluster,
