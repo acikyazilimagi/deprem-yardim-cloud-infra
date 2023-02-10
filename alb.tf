@@ -66,7 +66,7 @@ resource "aws_lb" "backend-alb" {
   name               = "backend-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.backend-alb-sg.id]
+  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
@@ -103,7 +103,7 @@ resource "aws_lb" "backend-go-alb" {
   name               = "backend-go-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.backend-alb-sg.id]
+  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
@@ -136,7 +136,7 @@ resource "aws_lb" "beniyiyim-alb" {
   name               = "beniyiyim-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.backend-alb-sg.id]
+  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
@@ -166,7 +166,7 @@ resource "aws_lb" "depremio-alb" {
   name               = "depremio-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.backend-alb-sg.id]
+  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
