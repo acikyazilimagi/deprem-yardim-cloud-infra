@@ -190,3 +190,35 @@ resource "aws_lb_listener" "depremio-alb-listener" {
   ]
 }
 // ------------- depremio services ---------- \\
+
+
+
+// ------------- eczane services ---------- \\
+resource "aws_lb" "eczane-alb" {
+  name               = "eczane-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
+  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Name = "eczane-alb"
+  }
+}
+
+resource "aws_lb_listener" "eczane-alb-listener" {
+  load_balancer_arn = aws_lb.eczane-alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.eczane-tg.arn
+  }
+  depends_on = [
+    aws_lb.eczane-alb
+  ]
+}
+// ------------- depremio services ---------- \\
