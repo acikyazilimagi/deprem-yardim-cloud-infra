@@ -198,7 +198,7 @@ resource "aws_lb" "eczane-alb" {
   name               = "eczane-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
+  security_groups    = [aws_security_group.backend-alb-sg] // Todo change
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
