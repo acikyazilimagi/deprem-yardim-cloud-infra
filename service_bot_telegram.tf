@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "telegrambot-TD" {
 resource "aws_ecs_service" "telegram-service" {
   name            = "telegram-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.telegrambot-TD.arn
+  task_definition = aws_ecs_task_definition.telegrambot-TD.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,

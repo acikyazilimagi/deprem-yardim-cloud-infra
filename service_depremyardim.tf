@@ -149,7 +149,7 @@ resource "aws_ecs_task_definition" "worker-TD" {
 resource "aws_ecs_service" "worker-service" {
   name            = "worker-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.worker-TD.arn
+  task_definition = aws_ecs_task_definition.worker-TD.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
