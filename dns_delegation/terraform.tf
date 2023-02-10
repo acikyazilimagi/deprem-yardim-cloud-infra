@@ -1,6 +1,8 @@
 terraform {
-  aws = {
-    source                = "hashicorp/aws"
-    configuration_aliases = [aws.source, aws.target]
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      configuration_aliases = [aws.source, aws.target]
+    }
   }
 }
