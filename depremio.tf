@@ -74,7 +74,6 @@ resource "aws_ecs_service" "depremio-service" {
   }
 }
 
-
 resource "aws_lb_listener_rule" "depremio-rule" {
   listener_arn = aws_lb_listener.depremio-alb-listener.arn
   priority     = 100
