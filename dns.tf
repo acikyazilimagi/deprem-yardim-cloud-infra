@@ -18,7 +18,7 @@ resource "aws_route53_zone" "root_domain" {
 }
 
 module "dns" {
-  for_each = locals.sub_domains
+  for_each = local.sub_domains
   source   = "./dns_delegation"
 
   parent_zone_id = aws_route53_zone.root_domain.zone_id
