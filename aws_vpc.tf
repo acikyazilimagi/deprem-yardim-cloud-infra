@@ -36,24 +36,6 @@ resource "aws_route_table" "route-table" {
   }
 }
 
-resource "aws_route_table" "private-route-table" {
-  vpc_id = aws_vpc.vpc.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat-a-gw.id
-  }
-
-  depends_on = [
-    aws_vpc.vpc,
-  ]
-  tags = {
-    Name        = "private-route-table"
-    Environment = var.environment
-  }
-}
-
-
 resource "aws_subnet" "private-subnet-a" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.0.128/26"
@@ -107,11 +89,11 @@ resource "aws_route_table_association" "b" {
 
 resource "aws_route_table_association" "private-route-table-a" {
   subnet_id      = aws_subnet.private-subnet-a.id
-  route_table_id = aws_route_table.private-route-table.id
+  route_table_id = aws_route_table.route-table.id
 }
 resource "aws_route_table_association" "private-route-table-b" {
   subnet_id      = aws_subnet.private-subnet-b.id
-  route_table_id = aws_route_table.private-route-table.id
+  route_table_id = aws_route_table.route-table.id
 }
 
 data "aws_eip" "nat-a-eip" {
