@@ -4,7 +4,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_iam_user" "user" {
-  name = "${var.username}" # "${var.username}-${random_string.suffix.result}"
+  name = var.username # "${var.username}-${random_string.suffix.result}"
 }
 
 resource "aws_iam_access_key" "user" {
