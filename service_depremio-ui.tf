@@ -72,6 +72,10 @@ resource "aws_ecs_service" "depremio-ui" {
     container_name   = "container-name"
     container_port   = 80
   }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
 
 resource "aws_lb_listener_rule" "depremio-ui" {

@@ -63,7 +63,7 @@ resource "aws_ecs_service" "depremio-api" {
 
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
-    security_groups  = [aws_security_group.service-sg.id]
+    security_groups  = [aws_security_group.ecs-default-sg.id]
     assign_public_ip = true
   }
 
@@ -71,6 +71,10 @@ resource "aws_ecs_service" "depremio-api" {
     target_group_arn = aws_lb_target_group.depremio-api.arn
     container_name   = "container-name"
     container_port   = 80
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
   }
 }
 
