@@ -1,15 +1,15 @@
 ### Amazon OpenSearch ###
 
 resource "aws_security_group" "OpenSearch" {
-  name        = "${var.name}"
+  name        = var.name
   description = "${var.name} - Managed by Terraform"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]    
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -27,7 +27,7 @@ resource "aws_security_group" "OpenSearch" {
 data "aws_caller_identity" "current" {}
 
 resource "aws_opensearch_domain" "OpenSearch" {
-  domain_name    = "${var.name}"
+  domain_name    = var.name
   engine_version = "OpenSearch_1.3"
 
   cluster_config {
@@ -50,7 +50,7 @@ resource "aws_opensearch_domain" "OpenSearch" {
   #   "rest.action.multi.allow_explicit_index" = "true"
   # }
 
-access_policies = <<CONFIG
+  access_policies = <<CONFIG
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -70,13 +70,13 @@ CONFIG
     Domain = "${var.name}"
   }
 
-#  depends_on = [aws_iam_service_linked_role.OpenSearch]
+  #  depends_on = [aws_iam_service_linked_role.OpenSearch]
 }
 
 
 ### IAM Role ###
 resource "aws_iam_role" "role-efk" {
-  name = "${var.name}"
+  name = var.name
 
   assume_role_policy = <<EOF
 {
@@ -96,7 +96,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "role-efk" {
-  role      = aws_iam_role.role-efk.name
+  role       = aws_iam_role.role-efk.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
 }
 
