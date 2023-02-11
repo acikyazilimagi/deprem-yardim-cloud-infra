@@ -49,8 +49,8 @@ resource "aws_lb_target_group" "fraudetect" {
   }
 }
 
-resource "aws_ecs_service" "fraudetect-service" {
-  name            = "fraudetect-service"
+resource "aws_ecs_service" "fraudetect" {
+  name            = "fraudetect"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.fraudetect.id
   desired_count   = 2
@@ -79,7 +79,7 @@ resource "aws_ecs_service" "fraudetect-service" {
 }
 
 
-resource "aws_lb_listener_rule" "fraudetect-rule" {
+resource "aws_lb_listener_rule" "fraudetect" {
   listener_arn = aws_lb_listener.fraudetect.arn
   priority     = 100
 
