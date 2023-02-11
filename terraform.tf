@@ -1,7 +1,10 @@
 terraform {
-  backend "remote" {
+  cloud {
     hostname     = "app.terraform.io"
-    organization = "deprem-yardim-cloud-infra"
+    organization = "afetyardim"
+    workspaces {
+      name = "deprem-yardim-cloud-infra"
+    }
   }
   required_providers {
     aws = {
