@@ -69,6 +69,33 @@ resource "aws_security_group" "service-sg" {
   }
 }
 
+resource "aws_security_group" "ecs-default-sg" {
+  name        = "ecs-default-sg"
+  description = "ECS Default SG"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description      = "HTTP"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    security_groups = ["sg-09d6376212dfa6ea1"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name        = "ecs-default-sg"
+    Environment = var.environment
+  }
+}
+
 resource "aws_security_group" "backend-alb-sg" {
   name        = "alb-sg"
   description = "Allow HTTP/HTTPS inbound traffic"
