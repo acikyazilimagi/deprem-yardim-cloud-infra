@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "fraudetect-TD" {
-  family                   = "fraudetect-TD"
+resource "aws_ecs_task_definition" "fraudetect" {
+  family                   = "fraudetect"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -31,8 +31,8 @@ resource "aws_ecs_task_definition" "fraudetect-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "fraudetect-tg" {
-  name        = "fraudetect-tg"
+resource "aws_lb_target_group" "fraudetect" {
+  name        = "fraudetect"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -44,7 +44,7 @@ resource "aws_lb_target_group" "fraudetect-tg" {
     protocol = "HTTP"
   }
   tags = {
-    Name        = "fraudetect-tg"
+    Name        = "fraudetect"
     Environment = var.environment
   }
 }
@@ -52,12 +52,12 @@ resource "aws_lb_target_group" "fraudetect-tg" {
 resource "aws_ecs_service" "fraudetect-service" {
   name            = "fraudetect-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.fraudetect-TD.id
+  task_definition = aws_ecs_task_definition.fraudetect.id
   desired_count   = 2
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.fraudetect-TD,
-    aws_lb_target_group.fraudetect-tg,
+    aws_ecs_task_definition.fraudetect,
+    aws_lb_target_group.fraudetect,
   ]
   launch_type = "FARGATE"
 
@@ -68,7 +68,7 @@ resource "aws_ecs_service" "fraudetect-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.fraudetect-tg.arn
+    target_group_arn = aws_lb_target_group.fraudetect.arn
     container_name   = "container-name"
     container_port   = 80
   }
@@ -80,12 +80,12 @@ resource "aws_ecs_service" "fraudetect-service" {
 
 
 resource "aws_lb_listener_rule" "fraudetect-rule" {
-  listener_arn = aws_lb_listener.fraudetect-alb-listener.arn
+  listener_arn = aws_lb_listener.fraudetect.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.fraudetect-tg.arn
+    target_group_arn = aws_lb_target_group.fraudetect.arn
   }
 
   condition {
@@ -95,8 +95,8 @@ resource "aws_lb_listener_rule" "fraudetect-rule" {
   }
 }
 
-resource "aws_lb" "fraudetect-alb" {
-  name               = "fraudetect-alb"
+resource "aws_lb" "fraudetect" {
+  name               = "fraudetect"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -105,20 +105,20 @@ resource "aws_lb" "fraudetect-alb" {
   enable_deletion_protection = true
 
   tags = {
-    Name = "fraudetect-alb"
+    Name = "fraudetect"
   }
 }
 
-resource "aws_lb_listener" "fraudetect-alb-listener" {
-  load_balancer_arn = aws_lb.fraudetect-alb.arn
+resource "aws_lb_listener" "fraudetect" {
+  load_balancer_arn = aws_lb.fraudetect.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.fraudetect-tg.arn
+    target_group_arn = aws_lb_target_group.fraudetect.arn
   }
   depends_on = [
-    aws_lb.fraudetect-alb
+    aws_lb.fraudetect
   ]
 }
