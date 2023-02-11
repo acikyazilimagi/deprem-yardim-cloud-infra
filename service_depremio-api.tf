@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "depremio-TD" {
-  family                   = "depremio-TD"
+resource "aws_ecs_task_definition" "depremio-api" {
+  family                   = "depremio-api"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -31,8 +31,8 @@ resource "aws_ecs_task_definition" "depremio-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "depremio-tg" {
-  name        = "depremio-tg"
+resource "aws_lb_target_group" "depremio-api" {
+  name        = "depremio-api"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -49,15 +49,15 @@ resource "aws_lb_target_group" "depremio-tg" {
   }
 }
 
-resource "aws_ecs_service" "depremio-service" {
-  name            = "depremio-service"
+resource "aws_ecs_service" "depremio-api" {
+  name            = "depremio-api"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.depremio-TD.id
+  task_definition = aws_ecs_task_definition.depremio-api.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.depremio-TD,
-    aws_lb_target_group.depremio-tg,
+    aws_ecs_task_definition.depremio-api,
+    aws_lb_target_group.depremio-api,
   ]
   launch_type = "FARGATE"
 
@@ -68,19 +68,19 @@ resource "aws_ecs_service" "depremio-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.depremio-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-api.arn
     container_name   = "container-name"
     container_port   = 80
   }
 }
 
-resource "aws_lb_listener_rule" "depremio-rule" {
-  listener_arn = aws_lb_listener.depremio-alb-listener.arn
+resource "aws_lb_listener_rule" "depremio-api" {
+  listener_arn = aws_lb_listener.depremio-api.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.depremio-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-api.arn
   }
 
   condition {
@@ -90,8 +90,8 @@ resource "aws_lb_listener_rule" "depremio-rule" {
   }
 }
 
-resource "aws_lb" "depremio-alb" {
-  name               = "depremio-alb"
+resource "aws_lb" "depremio-api" {
+  name               = "depremio-api"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -104,16 +104,16 @@ resource "aws_lb" "depremio-alb" {
   }
 }
 
-resource "aws_lb_listener" "depremio-alb-listener" {
-  load_balancer_arn = aws_lb.depremio-alb.arn
+resource "aws_lb_listener" "depremio-api" {
+  load_balancer_arn = aws_lb.depremio-api.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.depremio-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-api.arn
   }
   depends_on = [
-    aws_lb.depremio-alb
+    aws_lb.depremio-api
   ]
 }

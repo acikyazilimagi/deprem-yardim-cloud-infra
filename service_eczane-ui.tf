@@ -1,21 +1,25 @@
-resource "aws_ecs_task_definition" "eczane-TD" {
-  family                   = "eczane-TD"
+
+//web api
+
+
+resource "aws_ecs_task_definition" "eczane-front-TD" {
+  family                   = "eczane-front-TD"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 2048
+  memory                   = 4096
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "eczane" //bunu düzelticem
-      cpu    = 1024
-      memory = 2048
+      image  = "eczane-front"
+      cpu    = 2048
+      memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/eczane"
+          awslogs-group         = "/ecs/eczane-front"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -31,33 +35,33 @@ resource "aws_ecs_task_definition" "eczane-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "eczane-tg" {
-  name        = "eczane-tg"
+resource "aws_lb_target_group" "eczane-front-tg" {
+  name        = "eczane-front-tg"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/api/health"
+    path     = "/"
     port     = 80
     protocol = "HTTP"
   }
   tags = {
-    Name        = "eczane-tg"
+    Name        = "eczane-front-tg"
     Environment = var.environment
   }
 }
 
-resource "aws_ecs_service" "eczane-service" {
-  name            = "eczane-service"
+resource "aws_ecs_service" "eczane-front-service" {
+  name            = "eczane-front-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.eczane-TD.id
-  desired_count   = 2
+  task_definition = aws_ecs_task_definition.eczane-front-TD.id
+  desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.eczane-TD,
-    aws_lb_target_group.eczane-tg,
+    aws_ecs_task_definition.eczane-front-TD,
+    aws_lb_target_group.eczane-front-tg,
   ]
   launch_type = "FARGATE"
 
@@ -68,31 +72,18 @@ resource "aws_ecs_service" "eczane-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.eczane-tg.arn
+    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
     container_name   = "container-name"
     container_port   = 80
   }
-}
 
-
-resource "aws_lb_listener_rule" "eczane-rule" {
-  listener_arn = aws_lb_listener.eczane-alb-listener.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-tg.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["*"]
-    }
+  lifecycle {
+    ignore_changes = [task_definition]
   }
 }
 
-resource "aws_lb" "eczane-alb" {
-  name               = "eczane-alb"
+resource "aws_lb" "eczane-front-alb" {
+  name               = "eczane-front"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -101,20 +92,37 @@ resource "aws_lb" "eczane-alb" {
   enable_deletion_protection = true
 
   tags = {
-    Name = "eczane-alb"
+    Name = "eczane-front-alb"
   }
 }
 
-resource "aws_lb_listener" "eczane-alb-listener" {
-  load_balancer_arn = aws_lb.eczane-alb.arn
+resource "aws_lb_listener" "eczane-front-alb-listener" {
+  load_balancer_arn = aws_lb.eczane-front-alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-tg.arn
+    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
   }
   depends_on = [
-    aws_lb.eczane-alb
+    aws_lb.eczane-front-alb
   ]
 }
+
+resource "aws_lb_listener_rule" "eczane-front-rule" {
+  listener_arn = aws_lb_listener.eczane-front-alb-listener.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+}
+// web api

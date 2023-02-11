@@ -41,4 +41,8 @@ resource "aws_ecs_service" "go-consumer-service" {
     security_groups  = [aws_security_group.allow-http-sg.id]
     assign_public_ip = true
   }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }

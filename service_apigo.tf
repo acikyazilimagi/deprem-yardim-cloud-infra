@@ -76,6 +76,10 @@ resource "aws_ecs_service" "api-go-service" {
     container_name   = "container-name"
     container_port   = 80
   }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
 
 

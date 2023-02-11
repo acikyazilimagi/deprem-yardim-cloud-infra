@@ -1,9 +1,5 @@
-
-//web api
-
-
-resource "aws_ecs_task_definition" "eczane-front-TD" {
-  family                   = "eczane-front-TD"
+resource "aws_ecs_task_definition" "depremio-ui" {
+  family                   = "depremio-ui"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -12,14 +8,14 @@ resource "aws_ecs_task_definition" "eczane-front-TD" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "eczane-front"
+      image  = "nginx:latest"
       cpu    = 2048
       memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/eczane-front"
+          awslogs-group         = "/ecs/depremio"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -35,8 +31,8 @@ resource "aws_ecs_task_definition" "eczane-front-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "eczane-front-tg" {
-  name        = "eczane-front-tg"
+resource "aws_lb_target_group" "depremio-ui" {
+  name        = "depremio-ui"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -48,20 +44,20 @@ resource "aws_lb_target_group" "eczane-front-tg" {
     protocol = "HTTP"
   }
   tags = {
-    Name        = "eczane-front-tg"
+    Name        = "depremio-tg"
     Environment = var.environment
   }
 }
 
-resource "aws_ecs_service" "eczane-front-service" {
-  name            = "eczane-front-service"
+resource "aws_ecs_service" "depremio-ui" {
+  name            = "depremio-ui"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.eczane-front-TD.id
+  task_definition = aws_ecs_task_definition.depremio-ui.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.eczane-front-TD,
-    aws_lb_target_group.eczane-front-tg,
+    aws_ecs_task_definition.depremio-ui,
+    aws_lb_target_group.depremio-ui,
   ]
   launch_type = "FARGATE"
 
@@ -72,47 +68,19 @@ resource "aws_ecs_service" "eczane-front-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-ui.arn
     container_name   = "container-name"
     container_port   = 80
   }
 }
 
-resource "aws_lb" "eczane-front-alb" {
-  name               = "eczane-front"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
-  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
-
-  enable_deletion_protection = true
-
-  tags = {
-    Name = "eczane-front-alb"
-  }
-}
-
-resource "aws_lb_listener" "eczane-front-alb-listener" {
-  load_balancer_arn = aws_lb.eczane-front-alb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
-  }
-  depends_on = [
-    aws_lb.eczane-front-alb
-  ]
-}
-
-resource "aws_lb_listener_rule" "eczane-front-rule" {
-  listener_arn = aws_lb_listener.eczane-front-alb-listener.arn
+resource "aws_lb_listener_rule" "depremio-ui" {
+  listener_arn = aws_lb_listener.depremio-ui.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-ui.arn
   }
 
   condition {
@@ -121,4 +89,31 @@ resource "aws_lb_listener_rule" "eczane-front-rule" {
     }
   }
 }
-// web api
+
+resource "aws_lb" "depremio-ui" {
+  name               = "depremio-ui"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
+  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Name = "depremio-alb"
+  }
+}
+
+resource "aws_lb_listener" "depremio-ui" {
+  load_balancer_arn = aws_lb.depremio-ui.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.depremio-ui.arn
+  }
+  depends_on = [
+    aws_lb.depremio-ui
+  ]
+}

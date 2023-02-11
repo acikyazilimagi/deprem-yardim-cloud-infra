@@ -52,4 +52,8 @@ resource "aws_ecs_service" "twitter-scraper-service" {
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }

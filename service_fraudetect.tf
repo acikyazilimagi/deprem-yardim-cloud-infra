@@ -12,7 +12,7 @@ resource "aws_ecs_task_definition" "fraudetect-TD" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "fraudetect" //bunu düzelticem
+      image  = "nginx:latest" //bunu düzelticem
       cpu    = 2048
       memory = 4096
       logConfiguration = {
@@ -75,6 +75,10 @@ resource "aws_ecs_service" "fraudetect-service" {
     target_group_arn = aws_lb_target_group.fraudetect-tg.arn
     container_name   = "container-name"
     container_port   = 80
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
   }
 }
 
