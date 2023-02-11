@@ -1,22 +1,3 @@
-terraform {
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "deprem-yardim-cloud-infra"
-  }
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 4.52.0"
-    }
-  }
-}
-
-provider "aws" {
-  region     = var.region
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
-}
-
 resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
   instance_tenancy     = "default"
@@ -26,7 +7,6 @@ resource "aws_vpc" "vpc" {
     Environment = var.environment
   }
 }
-
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
@@ -55,24 +35,6 @@ resource "aws_route_table" "route-table" {
     Environment = var.environment
   }
 }
-
-resource "aws_route_table" "private-route-table" {
-  vpc_id = aws_vpc.vpc.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat-a-gw.id
-  }
-
-  depends_on = [
-    aws_vpc.vpc,
-  ]
-  tags = {
-    Name        = "private-route-table"
-    Environment = var.environment
-  }
-}
-
 
 resource "aws_subnet" "private-subnet-a" {
   vpc_id            = aws_vpc.vpc.id
@@ -127,84 +89,26 @@ resource "aws_route_table_association" "b" {
 
 resource "aws_route_table_association" "private-route-table-a" {
   subnet_id      = aws_subnet.private-subnet-a.id
-  route_table_id = aws_route_table.private-route-table.id
+  route_table_id = aws_route_table.route-table.id
 }
 resource "aws_route_table_association" "private-route-table-b" {
   subnet_id      = aws_subnet.private-subnet-b.id
-  route_table_id = aws_route_table.private-route-table.id
+  route_table_id = aws_route_table.route-table.id
 }
 
-
-
-
-resource "aws_ecr_repository" "base-ecr" {
-  name                 = "base-ecr"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
+data "aws_eip" "nat-a-eip" {
+  tags = {
+    Name = "gw NAT-A"
   }
 }
 
-resource "aws_ecr_lifecycle_policy" "ecr-policy" {
-  repository = aws_ecr_repository.base-ecr.name
+resource "aws_nat_gateway" "nat-a-gw" {
+  allocation_id = data.aws_eip.nat-a-eip.id
+  subnet_id     = aws_subnet.public-subnet-a.id
 
-  policy = <<EOF
-{
-    "rules": [
-        {
-            "rulePriority": 1,
-            "description": "Expire images older than 10 days",
-            "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 10
-            },
-            "action": {
-                "type": "expire"
-            }
-        }
-    ]
-}
-EOF
-}
-
-
-
-
-
-resource "aws_ecr_repository" "worker-ecr" {
-  name                 = "worker-ecr"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
+  tags = {
+    Name = "nat gateway A"
   }
-}
-
-resource "aws_ecr_lifecycle_policy" "worker-policy" {
-  repository = aws_ecr_repository.worker-ecr.name
-
-  policy = <<EOF
-{
-    "rules": [
-        {
-            "rulePriority": 1,
-            "description": "Expire images older than 10 days",
-            "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 10
-            },
-            "action": {
-                "type": "expire"
-            }
-        }
-    ]
-}
-EOF
 }
 
 /*
