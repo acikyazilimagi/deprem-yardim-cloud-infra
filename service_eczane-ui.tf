@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "api-go-TD" {
-  family                   = "api-go-TD"
+resource "aws_ecs_task_definition" "eczane-front-TD" {
+  family                   = "eczane-front-TD"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -8,14 +8,14 @@ resource "aws_ecs_task_definition" "api-go-TD" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "nginx" //bunu düzelticem
+      image  = "eczane-front"
       cpu    = 2048
       memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/api-go"
+          awslogs-group         = "/ecs/eczane-front"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -31,33 +31,33 @@ resource "aws_ecs_task_definition" "api-go-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "api-go-tg" {
-  name        = "api-go-tg"
+resource "aws_lb_target_group" "eczane-front-tg" {
+  name        = "eczane-front-tg"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/healthcheck/"
+    path     = "/"
     port     = 80
     protocol = "HTTP"
   }
   tags = {
-    Name        = "api-go-tg"
+    Name        = "eczane-front-tg"
     Environment = var.environment
   }
 }
 
-resource "aws_ecs_service" "api-go-service" {
-  name            = "api-go-service"
+resource "aws_ecs_service" "eczane-front-service" {
+  name            = "eczane-front-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.api-go-TD.id
-  desired_count   = 15
+  task_definition = aws_ecs_task_definition.eczane-front-TD.id
+  desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.api-go-TD,
-    aws_lb_target_group.api-go-tg,
+    aws_ecs_task_definition.eczane-front-TD,
+    aws_lb_target_group.eczane-front-tg,
   ]
   launch_type = "FARGATE"
 
@@ -68,7 +68,7 @@ resource "aws_ecs_service" "api-go-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.api-go-tg.arn
+    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
     container_name   = "container-name"
     container_port   = 80
   }
@@ -78,24 +78,8 @@ resource "aws_ecs_service" "api-go-service" {
   }
 }
 
-resource "aws_lb_listener_rule" "api-go-rule" {
-  listener_arn = aws_lb_listener.backend-go-alb-listener.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api-go-tg.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["*"]
-    }
-  }
-}
-
-resource "aws_lb" "backend-go-alb" {
-  name               = "backend-go-alb"
+resource "aws_lb" "eczane-front-alb" {
+  name               = "eczane-front"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -104,20 +88,36 @@ resource "aws_lb" "backend-go-alb" {
   enable_deletion_protection = true
 
   tags = {
-    Name = "backend-go-alb"
+    Name = "eczane-front-alb"
   }
 }
 
-resource "aws_lb_listener" "backend-go-alb-listener" {
-  load_balancer_arn = aws_lb.backend-go-alb.arn
+resource "aws_lb_listener" "eczane-front-alb-listener" {
+  load_balancer_arn = aws_lb.eczane-front-alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.api-go-tg.arn
+    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
   }
   depends_on = [
-    aws_lb.backend-go-alb
+    aws_lb.eczane-front-alb
   ]
+}
+
+resource "aws_lb_listener_rule" "eczane-front-rule" {
+  listener_arn = aws_lb_listener.eczane-front-alb-listener.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
 }

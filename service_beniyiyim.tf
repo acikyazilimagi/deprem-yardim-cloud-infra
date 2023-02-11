@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "beniyiyim-TD" {
   family                   = "beniyiyim-TD"
   requires_compatibilities = ["FARGATE"]
@@ -76,8 +72,11 @@ resource "aws_ecs_service" "beniyiyim-service" {
     container_name   = "container-name"
     container_port   = 80
   }
-}
 
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}
 
 resource "aws_lb_listener_rule" "beniyiyim-rule" {
   listener_arn = aws_lb_listener.beniyiyim-alb-listener.arn

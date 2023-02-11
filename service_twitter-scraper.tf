@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "twitter-scraper-TD" {
   family                   = "twitter-scraper-TD"
   requires_compatibilities = ["FARGATE"]
@@ -35,7 +31,6 @@ resource "aws_ecs_task_definition" "twitter-scraper-TD" {
   ])
 }
 
-
 resource "aws_ecs_service" "twitter-scraper-service" {
   name            = "twitter-scraper-service"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -51,5 +46,9 @@ resource "aws_ecs_service" "twitter-scraper-service" {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
   }
 }

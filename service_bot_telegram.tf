@@ -1,6 +1,3 @@
-
-
-//teelgram bot
 resource "aws_ecs_task_definition" "telegrambot-TD" {
   family                   = "telegrambot-TD"
   requires_compatibilities = ["FARGATE"]
@@ -45,6 +42,8 @@ resource "aws_ecs_service" "telegram-service" {
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
-}
 
-//teelgram bot
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}

@@ -1,21 +1,21 @@
-resource "aws_ecs_task_definition" "eczane-TD" {
-  family                   = "eczane-TD"
+resource "aws_ecs_task_definition" "depremio-api" {
+  family                   = "depremio-api"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 2048
+  memory                   = 4096
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "eczane" //bunu düzelticem
-      cpu    = 1024
-      memory = 2048
+      image  = "nginx:latest"
+      cpu    = 2048
+      memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/eczane"
+          awslogs-group         = "/ecs/depremio"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -31,33 +31,33 @@ resource "aws_ecs_task_definition" "eczane-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "eczane-tg" {
-  name        = "eczane-tg"
+resource "aws_lb_target_group" "depremio-api" {
+  name        = "depremio-api"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/api/health"
+    path     = "/"
     port     = 80
     protocol = "HTTP"
   }
   tags = {
-    Name        = "eczane-tg"
+    Name        = "depremio-tg"
     Environment = var.environment
   }
 }
 
-resource "aws_ecs_service" "eczane-service" {
-  name            = "eczane-service"
+resource "aws_ecs_service" "depremio-api" {
+  name            = "depremio-api"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.eczane-TD.id
-  desired_count   = 2
+  task_definition = aws_ecs_task_definition.depremio-api.id
+  desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.eczane-TD,
-    aws_lb_target_group.eczane-tg,
+    aws_ecs_task_definition.depremio-api,
+    aws_lb_target_group.depremio-api,
   ]
   launch_type = "FARGATE"
 
@@ -68,20 +68,19 @@ resource "aws_ecs_service" "eczane-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.eczane-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-api.arn
     container_name   = "container-name"
     container_port   = 80
   }
 }
 
-
-resource "aws_lb_listener_rule" "eczane-rule" {
-  listener_arn = aws_lb_listener.eczane-alb-listener.arn
+resource "aws_lb_listener_rule" "depremio-api" {
+  listener_arn = aws_lb_listener.depremio-api.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-api.arn
   }
 
   condition {
@@ -91,8 +90,8 @@ resource "aws_lb_listener_rule" "eczane-rule" {
   }
 }
 
-resource "aws_lb" "eczane-alb" {
-  name               = "eczane-alb"
+resource "aws_lb" "depremio-api" {
+  name               = "depremio-api"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -101,20 +100,20 @@ resource "aws_lb" "eczane-alb" {
   enable_deletion_protection = true
 
   tags = {
-    Name = "eczane-alb"
+    Name = "depremio-alb"
   }
 }
 
-resource "aws_lb_listener" "eczane-alb-listener" {
-  load_balancer_arn = aws_lb.eczane-alb.arn
+resource "aws_lb_listener" "depremio-api" {
+  load_balancer_arn = aws_lb.depremio-api.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-tg.arn
+    target_group_arn = aws_lb_target_group.depremio-api.arn
   }
   depends_on = [
-    aws_lb.eczane-alb
+    aws_lb.depremio-api
   ]
 }

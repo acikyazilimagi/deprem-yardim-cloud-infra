@@ -1,4 +1,3 @@
-//address-telegram
 resource "aws_ecs_task_definition" "address-telegram-TD" {
   family                   = "address-telegram-TD"
   requires_compatibilities = ["FARGATE"]
@@ -24,7 +23,6 @@ resource "aws_ecs_task_definition" "address-telegram-TD" {
       essential = true
     }
   ])
-
 }
 
 resource "aws_ecs_service" "address-telegram-service" {
@@ -43,14 +41,12 @@ resource "aws_ecs_service" "address-telegram-service" {
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
 
-//address-telegram
-
-
-
-
-//address-twitter
 resource "aws_ecs_task_definition" "address-twitter-TD" {
   family                   = "address-twitter-TD"
   requires_compatibilities = ["FARGATE"]
@@ -76,7 +72,6 @@ resource "aws_ecs_task_definition" "address-twitter-TD" {
       essential = true
     }
   ])
-
 }
 
 resource "aws_ecs_service" "address-twitter-service" {
@@ -94,6 +89,10 @@ resource "aws_ecs_service" "address-twitter-service" {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
   }
 }
 
@@ -126,7 +125,6 @@ resource "aws_ecs_task_definition" "address-discord-TD" {
       essential = true
     }
   ])
-
 }
 
 resource "aws_ecs_service" "address-discord-service" {
@@ -145,12 +143,12 @@ resource "aws_ecs_service" "address-discord-service" {
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
 
-//address-discord
-
-
-//address-twitch
 resource "aws_ecs_task_definition" "address-twitch-TD" {
   family                   = "address-twitch-TD"
   requires_compatibilities = ["FARGATE"]
@@ -176,7 +174,6 @@ resource "aws_ecs_task_definition" "address-twitch-TD" {
       essential = true
     }
   ])
-
 }
 
 resource "aws_ecs_service" "address-twitch-service" {
@@ -195,12 +192,12 @@ resource "aws_ecs_service" "address-twitch-service" {
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
 
-//address-twitch
-
-
-//address-data-excell
 resource "aws_ecs_task_definition" "address-data-excell-TD" {
   family                   = "address-data-excell-TD"
   requires_compatibilities = ["FARGATE"]
@@ -226,7 +223,6 @@ resource "aws_ecs_task_definition" "address-data-excell-TD" {
       essential = true
     }
   ])
-
 }
 
 resource "aws_ecs_service" "address-data-excell-service" {
@@ -245,6 +241,8 @@ resource "aws_ecs_service" "address-data-excell-service" {
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
-}
 
-//address-data-excell
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}

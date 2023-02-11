@@ -1,9 +1,5 @@
-
-//web api
-
-
-resource "aws_ecs_task_definition" "eczane-front-TD" {
-  family                   = "eczane-front-TD"
+resource "aws_ecs_task_definition" "fraudetect" {
+  family                   = "fraudetect"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -12,14 +8,14 @@ resource "aws_ecs_task_definition" "eczane-front-TD" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "eczane-front"
+      image  = "nginx:latest" //bunu düzelticem
       cpu    = 2048
       memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/eczane-front"
+          awslogs-group         = "/ecs/fraudetect"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -35,8 +31,8 @@ resource "aws_ecs_task_definition" "eczane-front-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "eczane-front-tg" {
-  name        = "eczane-front-tg"
+resource "aws_lb_target_group" "fraudetect" {
+  name        = "fraudetect"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -48,20 +44,20 @@ resource "aws_lb_target_group" "eczane-front-tg" {
     protocol = "HTTP"
   }
   tags = {
-    Name        = "eczane-front-tg"
+    Name        = "fraudetect"
     Environment = var.environment
   }
 }
 
-resource "aws_ecs_service" "eczane-front-service" {
-  name            = "eczane-front-service"
+resource "aws_ecs_service" "fraudetect" {
+  name            = "fraudetect"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.eczane-front-TD.id
-  desired_count   = 1
+  task_definition = aws_ecs_task_definition.fraudetect.id
+  desired_count   = 2
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.eczane-front-TD,
-    aws_lb_target_group.eczane-front-tg,
+    aws_ecs_task_definition.fraudetect,
+    aws_lb_target_group.fraudetect,
   ]
   launch_type = "FARGATE"
 
@@ -72,47 +68,24 @@ resource "aws_ecs_service" "eczane-front-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
+    target_group_arn = aws_lb_target_group.fraudetect.arn
     container_name   = "container-name"
     container_port   = 80
   }
-}
 
-resource "aws_lb" "eczane-front-alb" {
-  name               = "eczane-front"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
-  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
-
-  enable_deletion_protection = true
-
-  tags = {
-    Name = "eczane-front-alb"
+  lifecycle {
+    ignore_changes = [task_definition]
   }
 }
 
-resource "aws_lb_listener" "eczane-front-alb-listener" {
-  load_balancer_arn = aws_lb.eczane-front-alb.arn
-  port              = "80"
-  protocol          = "HTTP"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
-  }
-  depends_on = [
-    aws_lb.eczane-front-alb
-  ]
-}
-
-resource "aws_lb_listener_rule" "eczane-front-rule" {
-  listener_arn = aws_lb_listener.eczane-front-alb-listener.arn
+resource "aws_lb_listener_rule" "fraudetect" {
+  listener_arn = aws_lb_listener.fraudetect.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.eczane-front-tg.arn
+    target_group_arn = aws_lb_target_group.fraudetect.arn
   }
 
   condition {
@@ -121,4 +94,31 @@ resource "aws_lb_listener_rule" "eczane-front-rule" {
     }
   }
 }
-// web api
+
+resource "aws_lb" "fraudetect" {
+  name               = "fraudetect"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
+  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Name = "fraudetect"
+  }
+}
+
+resource "aws_lb_listener" "fraudetect" {
+  load_balancer_arn = aws_lb.fraudetect.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.fraudetect.arn
+  }
+  depends_on = [
+    aws_lb.fraudetect
+  ]
+}
