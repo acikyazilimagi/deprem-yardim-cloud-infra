@@ -83,7 +83,7 @@ resource "aws_ecs_service" "address-twitter-service" {
   name            = "address-twitter-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.address-twitter-TD.id
-  desired_count   = 5
+  desired_count   = 2
   depends_on = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.address-twitter-TD,
