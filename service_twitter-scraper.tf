@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "twitter-scraper-TD" {
   family                   = "twitter-scraper-TD"
   requires_compatibilities = ["FARGATE"]
@@ -34,7 +30,6 @@ resource "aws_ecs_task_definition" "twitter-scraper-TD" {
     }
   ])
 }
-
 
 resource "aws_ecs_service" "twitter-scraper-service" {
   name            = "twitter-scraper-service"

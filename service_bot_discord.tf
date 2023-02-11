@@ -1,5 +1,3 @@
-
-//worker
 resource "aws_ecs_task_definition" "discordbot-TD" {
   family                   = "discordbot-TD"
   requires_compatibilities = ["FARGATE"]
@@ -25,7 +23,6 @@ resource "aws_ecs_task_definition" "discordbot-TD" {
       essential = true
     }
   ])
-
 }
 
 resource "aws_ecs_service" "discordbot-service" {
@@ -49,5 +46,3 @@ resource "aws_ecs_service" "discordbot-service" {
     ignore_changes = [task_definition]
   }
 }
-
-//worker

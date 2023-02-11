@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "api-go-TD" {
   family                   = "api-go-TD"
   requires_compatibilities = ["FARGATE"]
@@ -82,7 +78,6 @@ resource "aws_ecs_service" "api-go-service" {
   }
 }
 
-
 resource "aws_lb_listener_rule" "api-go-rule" {
   listener_arn = aws_lb_listener.backend-go-alb-listener.arn
   priority     = 100
@@ -113,7 +108,6 @@ resource "aws_lb" "backend-go-alb" {
   }
 }
 
-//listener
 resource "aws_lb_listener" "backend-go-alb-listener" {
   load_balancer_arn = aws_lb.backend-go-alb.arn
   port              = "80"

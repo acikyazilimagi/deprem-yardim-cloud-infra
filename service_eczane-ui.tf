@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "eczane-front-TD" {
   family                   = "eczane-front-TD"
   requires_compatibilities = ["FARGATE"]
@@ -125,4 +121,3 @@ resource "aws_lb_listener_rule" "eczane-front-rule" {
     }
   }
 }
-// web api

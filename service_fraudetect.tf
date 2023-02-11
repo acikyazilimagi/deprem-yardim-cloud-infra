@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "fraudetect-TD" {
   family                   = "fraudetect-TD"
   requires_compatibilities = ["FARGATE"]

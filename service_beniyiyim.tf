@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "beniyiyim-TD" {
   family                   = "beniyiyim-TD"
   requires_compatibilities = ["FARGATE"]
@@ -81,7 +77,6 @@ resource "aws_ecs_service" "beniyiyim-service" {
     ignore_changes = [task_definition]
   }
 }
-
 
 resource "aws_lb_listener_rule" "beniyiyim-rule" {
   listener_arn = aws_lb_listener.beniyiyim-alb-listener.arn

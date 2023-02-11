@@ -1,7 +1,3 @@
-
-//web api
-
-
 resource "aws_ecs_task_definition" "discord-scraper-TD" {
   family                   = "discord-scraper-TD"
   requires_compatibilities = ["FARGATE"]
@@ -34,7 +30,6 @@ resource "aws_ecs_task_definition" "discord-scraper-TD" {
     }
   ])
 }
-
 
 resource "aws_ecs_service" "discord-scraper-service" {
   name            = "discord-scraper-service"

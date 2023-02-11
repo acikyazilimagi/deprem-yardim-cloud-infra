@@ -1,6 +1,3 @@
-
-
-//teelgram bot
 resource "aws_ecs_task_definition" "telegrambot-TD" {
   family                   = "telegrambot-TD"
   requires_compatibilities = ["FARGATE"]
@@ -50,5 +47,3 @@ resource "aws_ecs_service" "telegram-service" {
     ignore_changes = [task_definition]
   }
 }
-
-//teelgram bot
