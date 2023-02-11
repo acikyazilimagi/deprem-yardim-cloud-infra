@@ -17,22 +17,27 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
-resource "aws_route_table" "route-table" {
-  vpc_id = aws_vpc.vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-
-
-  depends_on = [
-    aws_vpc.vpc,
-    aws_internet_gateway.gw,
-  ]
+data "aws_eip" "nat-a-eip" {
   tags = {
-    Name        = "route-table"
-    Environment = var.environment
+    Name = "gw NAT-A"
+  }
+}
+
+resource "aws_nat_gateway" "nat-a-gw" {
+  allocation_id = data.aws_eip.nat-a-eip.id
+  subnet_id     = aws_subnet.private-subnet-a.id
+
+  tags = {
+    Name = "nat gateway A"
+  }
+}
+
+resource "aws_nat_gateway" "nat-b-gw" {
+  allocation_id = data.aws_eip.nat-a-eip.id
+  subnet_id     = aws_subnet.private-subnet-b.id
+
+  tags = {
+    Name = "nat gateway B"
   }
 }
 
@@ -77,54 +82,78 @@ resource "aws_subnet" "public-subnet-b" {
   }
 }
 
-resource "aws_route_table_association" "a" {
+resource "aws_route_table" "public-route" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  depends_on = [
+    aws_vpc.vpc,
+    aws_internet_gateway.gw,
+  ]
+
+  tags = {
+    Name        = "public-routes"
+    Environment = var.environment
+  }
+}
+
+resource "aws_route_table" "private-route-a" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.nat-a-gw.id
+  }
+
+  depends_on = [
+    aws_vpc.vpc,
+    aws_internet_gateway.gw,
+  ]
+
+  tags = {
+    Name        = "private-route-a"
+    Environment = var.environment
+  }
+}
+
+resource "aws_route_table" "private-route-b" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.nat-b-gw.id
+  }
+
+  depends_on = [
+    aws_vpc.vpc,
+    aws_internet_gateway.gw,
+  ]
+
+  tags = {
+    Name        = "private-route-b"
+    Environment = var.environment
+  }
+}
+
+resource "aws_route_table_association" "public-a" {
   subnet_id      = aws_subnet.public-subnet-a.id
-  route_table_id = aws_route_table.route-table.id
+  route_table_id = aws_route_table.public-route.id
 }
 
-resource "aws_route_table_association" "b" {
+resource "aws_route_table_association" "public-b" {
   subnet_id      = aws_subnet.public-subnet-b.id
-  route_table_id = aws_route_table.route-table.id
+  route_table_id = aws_route_table.public-route.id
 }
 
-resource "aws_route_table_association" "private-route-table-a" {
+resource "aws_route_table_association" "private-a" {
   subnet_id      = aws_subnet.private-subnet-a.id
-  route_table_id = aws_route_table.route-table.id
+  route_table_id = aws_route_table.private-route-a.id
 }
-resource "aws_route_table_association" "private-route-table-b" {
+resource "aws_route_table_association" "private-b" {
   subnet_id      = aws_subnet.private-subnet-b.id
-  route_table_id = aws_route_table.route-table.id
+  route_table_id = aws_route_table.private-route-b.id
 }
-
-data "aws_eip" "nat-a-eip" {
-  tags = {
-    Name = "gw NAT-A"
-  }
-}
-
-resource "aws_nat_gateway" "nat-a-gw" {
-  allocation_id = data.aws_eip.nat-a-eip.id
-  subnet_id     = aws_subnet.public-subnet-a.id
-
-  tags = {
-    Name = "nat gateway A"
-  }
-}
-
-/*
-
-module "iam" {
-  source   = "./iam"
-  username = "${var.name}-user"
-}
-
-module "opensearch" {
-  source          = "./opensearch"
-  name            = "${var.name}-os"
-  region          = var.region
-  vpc_id          = vpc.id
-  public_subnets  = vpc.public_subnets
-  private_subnets = vpc.private_subnets
-  iam_user_arn    = iam.iam_user_arn
-  iam_user_name   = iam.iam_user_name
-}*/
