@@ -253,34 +253,3 @@ resource "aws_lb_listener" "eczane-front-alb-listener" {
   ]
 }
 // ------------- eczane fe services ---------- \\
-
-
-// ------------- twitter-scraper services ---------- \\
-resource "aws_lb" "twitter-scraper-alb" {
-  name               = "twitter-scraper"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
-  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
-
-  enable_deletion_protection = true
-
-  tags = {
-    Name = "twitter-scraper-alb"
-  }
-}
-
-resource "aws_lb_listener" "twitter-scraper-alb-listener" {
-  load_balancer_arn = aws_lb.twitter-scraper-alb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.twitter-scraper-tg.arn
-  }
-  depends_on = [
-    aws_lb.twitter-scraper-alb
-  ]
-}
-// ------------- twitter-scraper services ---------- \\

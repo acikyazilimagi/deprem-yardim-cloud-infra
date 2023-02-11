@@ -35,23 +35,6 @@ resource "aws_ecs_task_definition" "twitter-scraper-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "twitter-scraper-tg" {
-  name        = "twitter-scraper-tg"
-  port        = 80
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = aws_vpc.vpc.id
-  health_check {
-    enabled  = true
-    path     = "/"
-    port     = 80
-    protocol = "HTTP"
-  }
-  tags = {
-    Name        = "twitter-scraper-tg"
-    Environment = var.environment
-  }
-}
 
 resource "aws_ecs_service" "twitter-scraper-service" {
   name            = "twitter-scraper-service"
@@ -60,8 +43,7 @@ resource "aws_ecs_service" "twitter-scraper-service" {
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.twitter-scraper-TD,
-    aws_lb_target_group.twitter-scraper-tg,
+    aws_ecs_task_definition.twitter-scraper-TD
   ]
   launch_type = "FARGATE"
 
@@ -70,28 +52,4 @@ resource "aws_ecs_service" "twitter-scraper-service" {
     security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.twitter-scraper-tg.arn
-    container_name   = "container-name"
-    container_port   = 80
-  }
 }
-
-
-resource "aws_lb_listener_rule" "twitter-scraper-rule" {
-  listener_arn = aws_lb_listener.twitter-scraper-alb-listener.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.twitter-scraper-tg.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["*"]
-    }
-  }
-}
-// web api
