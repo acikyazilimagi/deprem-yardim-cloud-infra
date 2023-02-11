@@ -1,5 +1,9 @@
-resource "aws_ecs_task_definition" "go-consumer-TD" {
-  family                   = "go-consumer-TD"
+
+//web api
+
+
+resource "aws_ecs_task_definition" "discord-scraper-TD" {
+  family                   = "discord-scraper-TD"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -8,37 +12,44 @@ resource "aws_ecs_task_definition" "go-consumer-TD" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "nginx:latest"
+      image  = "discord-scraper"
       cpu    = 2048
       memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/go-consumer"
+          awslogs-group         = "/ecs/discord-scraper"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
       }
       essential = true
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+        }
+      ]
     }
   ])
 }
 
-resource "aws_ecs_service" "go-consumer-service" {
-  name            = "go-consumer-service"
+
+resource "aws_ecs_service" "discord-scraper-service" {
+  name            = "discord-scraper-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.go-consumer-TD.id
+  task_definition = aws_ecs_task_definition.discord-scraper-TD.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.go-consumer-TD,
+    aws_ecs_task_definition.discord-scraper-TD
   ]
   launch_type = "FARGATE"
 
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
-    security_groups  = [aws_security_group.allow-http-sg.id]
+    security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
 }
