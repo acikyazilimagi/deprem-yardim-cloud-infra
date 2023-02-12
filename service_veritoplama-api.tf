@@ -49,7 +49,7 @@ resource "aws_docdb_cluster" "veritoplama_api" {
 
 resource "aws_docdb_cluster_parameter_group" "veritoplama" {
   family = "docdb4.0"
-  name   = aws_docdb_cluster.veritoplama_api.db_cluster_parameter_group_name
+  name   = aws_docdb_cluster.veritoplama_api.id
 
   parameter {
     name  = "tls"
