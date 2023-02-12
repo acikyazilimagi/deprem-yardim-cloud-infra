@@ -33,6 +33,8 @@ resource "aws_security_group_rule" "mysql" {
   from_port         = 3306
   to_port           = 3306
   cidr_blocks       = [aws_vpc.vpc.cidr_block]
+  type              = "ingress"
+  protocol          = "tcp"
 }
 
 resource "aws_rds_cluster" "fraudetect" {
