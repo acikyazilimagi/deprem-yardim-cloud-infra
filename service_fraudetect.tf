@@ -37,6 +37,11 @@ resource "aws_security_group_rule" "mysql" {
   protocol          = "tcp"
 }
 
+resource "aws_db_subnet_group" "fraudetect" {
+  name       = "fraudetect"
+  subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b]
+}
+
 resource "aws_rds_cluster" "fraudetect" {
   cluster_identifier      = "fraudetect"
   engine                  = "aurora-mysql"
@@ -48,6 +53,8 @@ resource "aws_rds_cluster" "fraudetect" {
   master_username         = data.aws_secretsmanager_secret_version.fraudetect_db_user.secret_string
   master_password         = data.aws_secretsmanager_secret_version.fraudetect_db_pass.secret_string
   vpc_security_group_ids  = [aws_security_group.fraudetect_db.id]
+  db_subnet_group_name    = aws_db_subnet_group.fraudetect.id
+  deletion_protection     = true
 }
 
 resource "aws_secretsmanager_secret" "fraudetect_env" {
