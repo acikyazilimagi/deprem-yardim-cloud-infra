@@ -55,14 +55,6 @@ resource "aws_rds_cluster" "fraudetect" {
   skip_final_snapshot     = true
 }
 
-resource "aws_rds_cluster_instance" "fraudetect" {
-  cluster_identifier = aws_rds_cluster.fraudetect.id
-  identifier         = "fraudetect"
-  instance_class     = "db.r4.large"
-  engine             = aws_rds_cluster.fraudetect.engine
-  engine_version     = aws_rds_cluster.fraudetect.engine_version
-}
-
 resource "aws_secretsmanager_secret" "fraudetect_env" {
   name = "fraudetect-prod-env"
 }
