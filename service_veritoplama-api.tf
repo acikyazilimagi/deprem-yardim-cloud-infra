@@ -37,6 +37,8 @@ resource "aws_docdb_cluster" "veritoplama_api" {
   backup_retention_period = 5
   skip_final_snapshot     = true
   vpc_security_group_ids  = [aws_security_group.veritoplama.id]
+  master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
+  master_password         = data.aws_secretsmanager_secret_version.veritoplama["db_pass"].secret_string
 }
 
 resource "aws_docdb_cluster_parameter_group" "veritoplama" {
