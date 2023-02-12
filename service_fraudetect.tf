@@ -66,6 +66,7 @@ resource "aws_secretsmanager_secret_version" "fraudetect_env" {
     MYSQL_PORT : aws_rds_cluster.fraudetect.port
     MYSQL_USER : aws_rds_cluster.fraudetect.master_username
     MYSQL_PASS : aws_rds_cluster.fraudetect.master_password
+    MYSQL_NAME : "fraudetect"
     API_KEY : data.aws_secretsmanager_secret_version.fraudetect["api_key"].secret_string
     LIST_API_KEY : data.aws_secretsmanager_secret_version.fraudetect["list_api_key"].secret_string
     DISCORD_WEB_HOOK : data.aws_secretsmanager_secret_version.fraudetect["discord_webhook"].secret_string
@@ -116,6 +117,7 @@ resource "aws_lb_target_group" "fraudetect" {
     path     = "/"
     port     = 80
     protocol = "HTTP"
+    matcher  = "200,202,302"
   }
   tags = {
     Name        = "fraudetect"
