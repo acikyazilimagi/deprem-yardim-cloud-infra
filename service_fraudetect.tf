@@ -38,7 +38,7 @@ resource "aws_security_group_rule" "mysql" {
 resource "aws_rds_cluster" "fraudetect" {
   cluster_identifier      = "fraudetect"
   engine                  = "aurora-mysql"
-  engine_version          = "8.0.mysql-aurora.3.02.0"
+  engine_version          = "5.7.mysql-aurora.2.08.3"
   engine_mode             = "serverless"
   availability_zones      = ["${var.region}a", "${var.region}b"]
   database_name           = "fraudetect"
