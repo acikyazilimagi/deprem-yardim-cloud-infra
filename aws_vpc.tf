@@ -96,14 +96,18 @@ resource "aws_route_table_association" "private-route-table-b" {
   route_table_id = aws_route_table.route-table.id
 }
 
-data "aws_eip" "nat-a-eip" {
+resource "aws_eip" "nat-a-eip" {
+  depends_on = [aws_internet_gateway.gw]
+  vpc        = true
+
   tags = {
-    Name = "gw NAT-A"
+    Name        = "gw NAT-A"
+    Environment = var.environment
   }
 }
 
 resource "aws_nat_gateway" "nat-a-gw" {
-  allocation_id = data.aws_eip.nat-a-eip.id
+  allocation_id = aws_eip.nat-a-eip.id
   subnet_id     = aws_subnet.public-subnet-a.id
 
   tags = {
