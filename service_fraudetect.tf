@@ -39,7 +39,7 @@ resource "aws_security_group_rule" "mysql" {
 
 resource "aws_db_subnet_group" "fraudetect" {
   name       = "fraudetect"
-  subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b]
+  subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
 }
 
 resource "aws_rds_cluster" "fraudetect" {
