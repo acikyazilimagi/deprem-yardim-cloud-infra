@@ -17,7 +17,7 @@ data "aws_secretsmanager_secret" "fraudetect" {
 
 data "aws_secretsmanager_secret_version" "fraudetect" {
   for_each  = local.fraudetect.secrets
-  secret_id = aws_secretsmanager_secret.fraudetect[each.key].id
+  secret_id = data.aws_secretsmanager_secret.fraudetect[each.key].id
 }
 
 resource "aws_security_group" "fraudetect_db" {
