@@ -40,7 +40,7 @@ resource "aws_rds_cluster" "veritoplama_api" {
   cluster_identifier      = "veritoplama-api"
   engine                  = "aurora-postgresql"
   engine_mode             = "serverless"
-  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  availability_zones      = ["${var.region}a", "${var.region}b"]
   database_name           = "veritoplama"
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
@@ -58,10 +58,10 @@ resource "aws_secretsmanager_secret" "veritoplama_env" {
 resource "aws_secretsmanager_secret_version" "veritoplama_env" {
   secret_id = aws_secretsmanager_secret.veritoplama_env.id
   secret_string = jsonencode({
-    DOCDB_HOST : aws_rds_cluster.veritoplama_api.endpoint
-    DOCDB_PORT : aws_rds_cluster.veritoplama_api.port
-    DOCDB_USER : aws_rds_cluster.veritoplama_api.master_username
-    DOCDB_PASS : aws_rds_cluster.veritoplama_api.master_password
+    PG_HOST : aws_rds_cluster.veritoplama_api.endpoint
+    PG_PORT : aws_rds_cluster.veritoplama_api.port
+    PG_USER : aws_rds_cluster.veritoplama_api.master_username
+    PG_PASS : aws_rds_cluster.veritoplama_api.master_password
   })
 }
 
@@ -188,4 +188,3 @@ resource "aws_lb_listener" "veritoplama_api" {
     aws_lb.veritoplama_api
   ]
 }
-
