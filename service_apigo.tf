@@ -53,7 +53,7 @@ resource "aws_ecs_service" "api-go-service" {
   name            = "api-go-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.api-go-TD.id
-  desired_count   = 15
+  desired_count   = 10
   depends_on = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.api-go-TD,
