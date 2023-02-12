@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "veritoplama_ui" {
 }
 
 resource "aws_lb_target_group" "veritoplama_ui" {
-  name        = "veritoplama_ui"
+  name        = "veritoplama-ui"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -95,7 +95,7 @@ resource "aws_lb_listener_rule" "veritoplama_ui" {
 }
 
 resource "aws_lb" "veritoplama_ui" {
-  name               = "veritoplama_ui"
+  name               = "veritoplama-ui"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change

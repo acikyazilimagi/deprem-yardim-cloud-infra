@@ -32,7 +32,7 @@ resource "aws_security_group_rule" "veritoplama" {
 }
 
 resource "aws_docdb_cluster" "veritoplama_api" {
-  cluster_identifier      = "veritoplama_api"
+  cluster_identifier      = "veritoplama-api"
   engine                  = "docdb"
   backup_retention_period = 5
   skip_final_snapshot     = true
@@ -97,7 +97,7 @@ resource "aws_ecs_task_definition" "veritoplama_api" {
 }
 
 resource "aws_lb_target_group" "veritoplama_api" {
-  name        = "veritoplama_api"
+  name        = "veritoplama-api"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -160,7 +160,7 @@ resource "aws_lb_listener_rule" "veritoplama_api" {
 }
 
 resource "aws_lb" "veritoplama_api" {
-  name               = "veritoplama_api"
+  name               = "veritoplama-api"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
