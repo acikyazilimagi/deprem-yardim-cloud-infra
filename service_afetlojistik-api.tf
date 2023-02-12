@@ -40,7 +40,6 @@ resource "aws_docdb_cluster" "afetlojistik-api" {
   cluster_identifier      = "afetlojistik-api"
   engine                  = "docdb"
   availability_zones      = ["${var.region}a", "${var.region}b"]
-  database_name           = "afetlojistik-api"
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_user"].secret_string
   master_password         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_pass"].secret_string
