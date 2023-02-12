@@ -31,6 +31,11 @@ resource "aws_security_group_rule" "veritoplama" {
   protocol          = "tcp"
 }
 
+resource "aws_db_subnet_group" "veritoplama" {
+  name       = "veritoplama"
+  subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
+}
+
 resource "aws_docdb_cluster" "veritoplama_api" {
   cluster_identifier      = "veritoplama-api"
   engine                  = "docdb"
@@ -39,6 +44,7 @@ resource "aws_docdb_cluster" "veritoplama_api" {
   vpc_security_group_ids  = [aws_security_group.veritoplama.id]
   master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
   master_password         = data.aws_secretsmanager_secret_version.veritoplama["db_pass"].secret_string
+  db_subnet_group_name    = aws_db_subnet_group.veritoplama.id
 }
 
 resource "aws_docdb_cluster_parameter_group" "veritoplama" {
