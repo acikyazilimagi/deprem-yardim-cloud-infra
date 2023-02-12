@@ -1,11 +1,11 @@
 terraform {
-  #  cloud {
-  #    hostname     = "app.terraform.io"
-  #    organization = "afetyardim"
-  #    workspaces {
-  #      name = "deprem-yardim-cloud-infra"
-  #    }
-  #  }
+  cloud {
+    hostname     = "app.terraform.io"
+    organization = "afetyardim"
+    workspaces {
+      name = "deprem-yardim-cloud-infra"
+    }
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"

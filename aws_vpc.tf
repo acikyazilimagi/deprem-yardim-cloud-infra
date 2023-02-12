@@ -17,14 +17,26 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
-data "aws_eip" "nat-a-eip" {
+resource "aws_eip" "nat-a-eip" {
+  depends_on = [aws_internet_gateway.gw]
+  vpc        = true
+
   tags = {
     Name = "gw NAT-A"
   }
 }
 
+resource "aws_eip" "nat-b-eip" {
+  depends_on = [aws_internet_gateway.gw]
+  vpc        = true
+
+  tags = {
+    Name = "gw NAT-B"
+  }
+}
+
 resource "aws_nat_gateway" "nat-a-gw" {
-  allocation_id = data.aws_eip.nat-a-eip.id
+  allocation_id = aws_eip.nat-a-eip.id
   subnet_id     = aws_subnet.private-subnet-a.id
 
   tags = {
@@ -33,7 +45,7 @@ resource "aws_nat_gateway" "nat-a-gw" {
 }
 
 resource "aws_nat_gateway" "nat-b-gw" {
-  allocation_id = data.aws_eip.nat-a-eip.id
+  allocation_id = aws_eip.nat-b-eip.id
   subnet_id     = aws_subnet.private-subnet-b.id
 
   tags = {
