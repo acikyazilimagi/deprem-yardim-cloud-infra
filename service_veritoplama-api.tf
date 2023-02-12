@@ -36,11 +36,19 @@ resource "aws_db_subnet_group" "veritoplama" {
   subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
 }
 
+<<<<<<< HEAD
 resource "aws_rds_cluster" "veritoplama-api" {
   cluster_identifier      = "veritoplama-api"
   engine                  = "aurora-postgresql"
   engine_mode             = "serverless"
   availability_zones      = ["${var.region}a", "${var.region}b"]
+=======
+resource "aws_rds_cluster" "veritoplama_api" {
+  cluster_identifier      = "veritoplama-api"
+  engine                  = "aurora-postgresql"
+  engine_mode             = "serverless"
+  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
+>>>>>>> cdf0bdde3282e64a6ddeb0ff1831ceec3cc65907
   database_name           = "veritoplama"
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
