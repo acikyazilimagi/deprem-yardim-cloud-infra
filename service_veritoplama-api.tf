@@ -57,6 +57,12 @@ resource "aws_docdb_cluster_parameter_group" "veritoplama" {
   }
 }
 
+resource "aws_docdb_cluster_instance" "veritoplama" {
+  cluster_identifier = aws_docdb_cluster_instance.veritoplama.id
+  identifier         = "veritoplama"
+  instance_class     = "db.t3.medium"
+}
+
 resource "aws_secretsmanager_secret" "veritoplama_env" {
   name = "veritoplama-prod-env"
 }
