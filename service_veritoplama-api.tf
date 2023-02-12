@@ -36,31 +36,19 @@ resource "aws_db_subnet_group" "veritoplama" {
   subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
 }
 
-resource "aws_docdb_cluster" "veritoplama_api" {
+resource "aws_rds_cluster" "veritoplama_api" {
   cluster_identifier      = "veritoplama-api"
-  engine                  = "docdb"
+  engine                  = "aurora-postgresql"
+  engine_mode             = "serverless"
+  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  database_name           = "veritoplama"
   backup_retention_period = 5
-  skip_final_snapshot     = true
-  vpc_security_group_ids  = [aws_security_group.veritoplama.id]
   master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
   master_password         = data.aws_secretsmanager_secret_version.veritoplama["db_pass"].secret_string
+  vpc_security_group_ids  = [aws_security_group.veritoplama.id]
   db_subnet_group_name    = aws_db_subnet_group.veritoplama.id
-}
-
-resource "aws_docdb_cluster_parameter_group" "veritoplama" {
-  family = "docdb4.0"
-  name   = aws_docdb_cluster.veritoplama_api.id
-
-  parameter {
-    name  = "tls"
-    value = "disabled"
-  }
-}
-
-resource "aws_docdb_cluster_instance" "veritoplama" {
-  cluster_identifier = aws_docdb_cluster.veritoplama_api.id
-  identifier         = "veritoplama"
-  instance_class     = "db.t3.medium"
+  deletion_protection     = true
+  skip_final_snapshot     = true
 }
 
 resource "aws_secretsmanager_secret" "veritoplama_env" {
@@ -70,10 +58,10 @@ resource "aws_secretsmanager_secret" "veritoplama_env" {
 resource "aws_secretsmanager_secret_version" "veritoplama_env" {
   secret_id = aws_secretsmanager_secret.veritoplama_env.id
   secret_string = jsonencode({
-    DOCDB_HOST : aws_docdb_cluster.veritoplama_api.endpoint
-    DOCDB_PORT : aws_docdb_cluster.veritoplama_api.port
-    DOCDB_USER : aws_docdb_cluster.veritoplama_api.master_username
-    DOCDB_PASS : aws_docdb_cluster.veritoplama_api.master_password
+    DOCDB_HOST : aws_rds_cluster.veritoplama_api.endpoint
+    DOCDB_PORT : aws_rds_cluster.veritoplama_api.port
+    DOCDB_USER : aws_rds_cluster.veritoplama_api.master_username
+    DOCDB_PASS : aws_rds_cluster.veritoplama_api.master_password
   })
 }
 
