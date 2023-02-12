@@ -188,4 +188,3 @@ resource "aws_lb_listener" "veritoplama_api" {
     aws_lb.veritoplama_api
   ]
 }
-
