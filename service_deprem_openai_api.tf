@@ -99,7 +99,7 @@ resource "aws_lb" "deprem-openai-api-alb" {
   name               = "deprem-openai-api-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
+  security_groups    = ["sg-09d6376212dfa6ea1", "sg-06ff875226c82801f", "sg-04e80daf38921c9d4", "sg-0fc6eecb89164c95f"]
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
