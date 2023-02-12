@@ -1,7 +1,7 @@
 terraform {
   cloud {
-    hostname     = "app.terraform.io"
     organization = "afetyardim"
+
     workspaces {
       name = "deprem-yardim-cloud-infra"
     }
