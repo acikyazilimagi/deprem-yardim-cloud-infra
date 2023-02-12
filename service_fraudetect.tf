@@ -45,9 +45,9 @@ resource "aws_db_subnet_group" "fraudetect" {
 resource "aws_rds_cluster" "fraudetect" {
   cluster_identifier      = "fraudetect"
   engine                  = "aurora-mysql"
-  engine_version          = "5.7.mysql-aurora.2.08.3"
+  engine_version          = "5.7.mysql_aurora.2.08.3"
   engine_mode             = "serverless"
-  availability_zones      = ["${var.region}a", "${var.region}b"]
+  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
   database_name           = "fraudetect"
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.fraudetect_db_user.secret_string
