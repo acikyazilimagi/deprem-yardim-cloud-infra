@@ -45,7 +45,7 @@ resource "aws_rds_cluster" "veritoplama-api" {
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
   master_password         = data.aws_secretsmanager_secret_version.veritoplama["db_pass"].secret_string
-  vpc_security_group_ids  = [aws_security_group.veritoplama_db.id]
+  vpc_security_group_ids  = [aws_security_group.veritoplama.id]
   db_subnet_group_name    = aws_db_subnet_group.veritoplama.id
   deletion_protection     = true
   skip_final_snapshot     = true
@@ -58,10 +58,10 @@ resource "aws_secretsmanager_secret" "veritoplama_env" {
 resource "aws_secretsmanager_secret_version" "veritoplama_env" {
   secret_id = aws_secretsmanager_secret.veritoplama_env.id
   secret_string = jsonencode({
-    DOCDB_HOST : aws_docdb_cluster.veritoplama_api.endpoint
-    DOCDB_PORT : aws_docdb_cluster.veritoplama_api.port
-    DOCDB_USER : aws_docdb_cluster.veritoplama_api.master_username
-    DOCDB_PASS : aws_docdb_cluster.veritoplama_api.master_password
+    DOCDB_HOST : aws_rds_cluster.veritoplama_api.endpoint
+    DOCDB_PORT : aws_rds_cluster.veritoplama_api.port
+    DOCDB_USER : aws_rds_cluster.veritoplama_api.master_username
+    DOCDB_PASS : aws_rds_cluster.veritoplama_api.master_password
   })
 }
 
