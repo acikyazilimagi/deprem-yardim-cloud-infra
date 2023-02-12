@@ -116,6 +116,7 @@ resource "aws_lb_target_group" "fraudetect" {
     path     = "/"
     port     = 80
     protocol = "HTTP"
+    matcher  = "200,202,302"
   }
   tags = {
     Name        = "fraudetect"
