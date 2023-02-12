@@ -39,7 +39,7 @@ resource "aws_lb_target_group" "deprem-openai-api-tg" {
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/api/health"
+    path     = "/health"
     port     = 80
     protocol = "HTTP"
   }
