@@ -36,7 +36,7 @@ resource "aws_db_subnet_group" "veritoplama" {
   subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
 }
 
-resource "aws_rds_cluster" "veritoplama-api" {
+resource "aws_rds_cluster" "veritoplama_api" {
   cluster_identifier      = "veritoplama-api"
   engine                  = "aurora-postgresql"
   engine_mode             = "serverless"
