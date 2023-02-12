@@ -22,7 +22,8 @@ resource "aws_eip" "nat-a-eip" {
   vpc        = true
 
   tags = {
-    Name = "gw NAT-A"
+    Name        = "gw NAT-A"
+    Environment = var.environment
   }
 }
 
@@ -31,13 +32,14 @@ resource "aws_eip" "nat-b-eip" {
   vpc        = true
 
   tags = {
-    Name = "gw NAT-B"
+    Name        = "gw NAT-B"
+    Environment = var.environment
   }
 }
 
 resource "aws_nat_gateway" "nat-a-gw" {
   allocation_id = aws_eip.nat-a-eip.id
-  subnet_id     = aws_subnet.private-subnet-a.id
+  subnet_id     = aws_subnet.public-subnet-a.id
 
   tags = {
     Name = "nat gateway A"
@@ -46,7 +48,7 @@ resource "aws_nat_gateway" "nat-a-gw" {
 
 resource "aws_nat_gateway" "nat-b-gw" {
   allocation_id = aws_eip.nat-b-eip.id
-  subnet_id     = aws_subnet.private-subnet-b.id
+  subnet_id     = aws_subnet.public-subnet-b.id
 
   tags = {
     Name = "nat gateway B"
