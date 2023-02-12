@@ -23,6 +23,18 @@ data "aws_secretsmanager_secret_version" "fraudetect_db_pass" {
   secret_id = data.aws_secretsmanager_secret.fraudetect_db_pass.id
 }
 
+resource "aws_security_group" "fraudetect_db" {
+  name   = "fraudetect-db"
+  vpc_id = aws_vpc.vpc.id
+}
+
+resource "aws_security_group_rule" "mysql" {
+  security_group_id = aws_security_group.fraudetect_db.id
+  from_port         = 3306
+  to_port           = 3306
+  cidr_blocks       = [aws_vpc.vpc.cidr_block]
+}
+
 resource "aws_rds_cluster" "fraudetect" {
   cluster_identifier      = "fraudetect"
   engine                  = "aurora-mysql"
@@ -33,6 +45,7 @@ resource "aws_rds_cluster" "fraudetect" {
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.fraudetect_db_user.secret_string
   master_password         = data.aws_secretsmanager_secret_version.fraudetect_db_pass.secret_string
+  vpc_security_group_ids  = [aws_security_group.fraudetect_db.id]
 }
 
 resource "aws_secretsmanager_secret" "fraudetect_env" {
