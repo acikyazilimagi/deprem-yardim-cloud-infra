@@ -1,3 +1,76 @@
+locals {
+  fraudetect = {
+    secrets = {
+      db_user = "/projects/fraudetect/db/user"
+      db_pass = "/projects/fraudetect/db/pass"
+    }
+  }
+}
+
+data "aws_secretsmanager_secret" "fraudetect_db_user" {
+  name = local.fraudetect.secrets.db_user
+}
+
+data "aws_secretsmanager_secret_version" "fraudetect_db_user" {
+  secret_id = data.aws_secretsmanager_secret.fraudetect_db_user.id
+}
+
+data "aws_secretsmanager_secret" "fraudetect_db_pass" {
+  name = local.fraudetect.secrets.db_pass
+}
+
+data "aws_secretsmanager_secret_version" "fraudetect_db_pass" {
+  secret_id = data.aws_secretsmanager_secret.fraudetect_db_pass.id
+}
+
+resource "aws_security_group" "fraudetect_db" {
+  name   = "fraudetect-db"
+  vpc_id = aws_vpc.vpc.id
+}
+
+resource "aws_security_group_rule" "mysql" {
+  security_group_id = aws_security_group.fraudetect_db.id
+  from_port         = 3306
+  to_port           = 3306
+  cidr_blocks       = [aws_vpc.vpc.cidr_block]
+  type              = "ingress"
+  protocol          = "tcp"
+}
+
+resource "aws_db_subnet_group" "fraudetect" {
+  name       = "fraudetect"
+  subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
+}
+
+resource "aws_rds_cluster" "fraudetect" {
+  cluster_identifier      = "fraudetect"
+  engine                  = "aurora-mysql"
+  engine_version          = "5.7.mysql-aurora.2.08.3"
+  engine_mode             = "serverless"
+  availability_zones      = ["${var.region}a", "${var.region}b"]
+  database_name           = "fraudetect"
+  backup_retention_period = 5
+  master_username         = data.aws_secretsmanager_secret_version.fraudetect_db_user.secret_string
+  master_password         = data.aws_secretsmanager_secret_version.fraudetect_db_pass.secret_string
+  vpc_security_group_ids  = [aws_security_group.fraudetect_db.id]
+  db_subnet_group_name    = aws_db_subnet_group.fraudetect.id
+  deletion_protection     = true
+}
+
+resource "aws_secretsmanager_secret" "fraudetect_env" {
+  name = "fraudetect-prod-env"
+}
+
+resource "aws_secretsmanager_secret_version" "fraudetect_env" {
+  secret_id = aws_secretsmanager_secret.fraudetect_env.id
+  secret_string = jsonencode({
+    MYSQL_HOST : aws_rds_cluster.fraudetect.endpoint
+    MYSQL_PORT : aws_rds_cluster.fraudetect.port
+    MYSQL_USER : aws_rds_cluster.fraudetect.master_username
+    MYSQL_PASS : aws_rds_cluster.fraudetect.master_password
+  })
+}
+
 resource "aws_ecs_task_definition" "fraudetect" {
   family                   = "fraudetect"
   requires_compatibilities = ["FARGATE"]
@@ -53,7 +126,7 @@ resource "aws_ecs_service" "fraudetect" {
   name            = "fraudetect"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.fraudetect.id
-  desired_count   = 2
+  desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.fraudetect,

@@ -53,7 +53,7 @@ resource "aws_ecs_service" "eczane-service" {
   name            = "eczane-service"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.eczane-TD.id
-  desired_count   = 2
+  desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.eczane-TD,

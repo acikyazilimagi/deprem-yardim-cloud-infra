@@ -75,10 +75,10 @@ resource "aws_security_group" "ecs-default-sg" {
   vpc_id      = aws_vpc.vpc.id
 
   ingress {
-    description      = "HTTP"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
+    description     = "HTTP"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
     security_groups = ["sg-09d6376212dfa6ea1"]
   }
 
