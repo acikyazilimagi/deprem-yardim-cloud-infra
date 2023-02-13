@@ -18,3 +18,7 @@ variable "full_environment" {
 variable "region" {
   type = string
 }
+
+variable "vpn_ip" {
+  type = string
+}
