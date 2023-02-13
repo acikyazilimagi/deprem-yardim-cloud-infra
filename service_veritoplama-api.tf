@@ -67,7 +67,7 @@ resource "aws_secretsmanager_secret_version" "veritoplama_env" {
     PG_PORT : aws_rds_cluster.veritoplama_api.port
     PG_USER : aws_rds_cluster.veritoplama_api.master_username
     PG_PASS : aws_rds_cluster.veritoplama_api.master_password
-    MONGO_URL : data.aws_secretsmanager_secret_version.veritoplama_api["mongo_uri"].secret_string
+    MONGO_URL : data.aws_secretsmanager_secret_version.veritoplama["mongo_uri"].secret_string
   })
 }
 
