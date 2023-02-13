@@ -79,9 +79,10 @@ resource "aws_ecs_service" "api-go-service" {
 }
 
 resource "aws_appautoscaling_target" "api-go-target" {
-  max_capacity = 100
+  max_capacity = 50
   min_capacity = 10
-  resource_id = aws_ecs_service.api-go-service.resource_id
+  #resource_id = aws_ecs_service.api-go-service.resource_id
+  resource_id = "service/base-cluster/api-go-service"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace = "ecs"
 }
