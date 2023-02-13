@@ -7,7 +7,7 @@ locals {
       OPTIYOL_TOKEN = "/projects/afetlojistik/optiyol-token"
       INTEGRATION_OPTIYOL_URL = "/projects/afetlojistik/integration-optiyol-url"
       OPTIYOL_COMPANY_NAME = "/projects/afetlojistik/optiyol-company-name"
-      AWS_REGION : "/projects/afetlojistik/aws-sns-region"
+      AWS_REGION : "/projects/afetlojistik/aws-region"
       AWS_ACCESS_KEY : "/projects/afetlojistik/aws-access-key"
       AWS_SECRET_KEY : "/projects/afetlojistik/aws-secret-key"
       DEBUG_BYPASS_CODE : "/projects/afetlojistik/debug-bypass-code"
@@ -76,7 +76,7 @@ resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
     DOCDB_PASS : aws_docdb_cluster.afetlojistik-api.master_password
     DOCDB_NAME : "afetlojistik-api"
     # mongodb://[username:password@]host[:port][/[database][?parameter_list]]
-    MONGO_URL : "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api??replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+    MONGO_URL : "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     SWAGGER_ENABLED : "false"
     PORT : "80"
     LOG_LEVEL : "debug"
