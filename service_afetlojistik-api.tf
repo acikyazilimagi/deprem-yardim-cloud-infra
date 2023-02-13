@@ -51,6 +51,7 @@ resource "aws_docdb_cluster" "afetlojistik-api" {
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_user"].secret_string
   master_password         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_pass"].secret_string
+  db_cluster_parameter_group_name = "discord-bot"
   vpc_security_group_ids  = [aws_security_group.afetlojistik-api_db.id]
   db_subnet_group_name    = aws_db_subnet_group.afetlojistik-api.id
   deletion_protection     = true
