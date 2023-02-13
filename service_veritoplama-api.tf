@@ -1,8 +1,9 @@
 locals {
   veritoplama = {
     secrets = {
-      db_user = "/projects/veritoplama/db/user"
-      db_pass = "/projects/veritoplama/db/pass"
+      db_user   = "/projects/veritoplama/db/user"
+      db_pass   = "/projects/veritoplama/db/pass"
+      mongo_uri = "/projects/veritoplama/mongo/uri"
     }
   }
 }
@@ -40,7 +41,7 @@ resource "aws_rds_cluster" "veritoplama_api" {
   cluster_identifier      = "veritoplama-api"
   engine                  = "aurora-postgresql"
   engine_mode             = "serverless"
-  availability_zones      = ["${var.region}a", "${var.region}b"]
+  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
   database_name           = "veritoplama"
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
@@ -49,6 +50,10 @@ resource "aws_rds_cluster" "veritoplama_api" {
   db_subnet_group_name    = aws_db_subnet_group.veritoplama.id
   deletion_protection     = true
   skip_final_snapshot     = true
+
+  lifecycle {
+    ignore_changes = [scaling_configuration]
+  }
 }
 
 resource "aws_secretsmanager_secret" "veritoplama_env" {
@@ -62,7 +67,7 @@ resource "aws_secretsmanager_secret_version" "veritoplama_env" {
     PG_PORT : aws_rds_cluster.veritoplama_api.port
     PG_USER : aws_rds_cluster.veritoplama_api.master_username
     PG_PASS : aws_rds_cluster.veritoplama_api.master_password
-    MONGO_URL : data.aws_secretsmanager_secret_version.veritoplama_api["MONGO_URL"].secret_string
+    MONGO_URL : data.aws_secretsmanager_secret_version.veritoplama_api["mongo_uri"].secret_string
   })
 }
 
@@ -174,6 +179,11 @@ resource "aws_lb" "veritoplama_api" {
   tags = {
     Name = "depremio-alb"
   }
+}
+
+resource "aws_wafv2_web_acl_association" "veritoplama_api" {
+  resource_arn = aws_lb.veritoplama_api.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
 }
 
 resource "aws_lb_listener" "veritoplama_api" {
