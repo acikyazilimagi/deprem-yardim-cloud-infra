@@ -74,14 +74,16 @@ resource "aws_ecs_service" "api-go-service" {
   }
 
   lifecycle {
-    ignore_changes = [task_definition]
+    ignore_changes = [
+      task_definition,
+      desired_count
+    ]
   }
 }
 
 resource "aws_appautoscaling_target" "api-go-target" {
   max_capacity = 50
   min_capacity = 10
-  #resource_id = aws_ecs_service.api-go-service.resource_id
   resource_id = "service/${aws_ecs_cluster.base-cluster.name}/${aws_ecs_service.api-go-service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace = "ecs"
