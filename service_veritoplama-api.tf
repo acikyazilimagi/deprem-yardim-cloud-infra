@@ -49,6 +49,10 @@ resource "aws_rds_cluster" "veritoplama_api" {
   db_subnet_group_name    = aws_db_subnet_group.veritoplama.id
   deletion_protection     = true
   skip_final_snapshot     = true
+
+  lifecycle {
+    ignore_changes = [scaling_configuration]
+  }
 }
 
 resource "aws_secretsmanager_secret" "veritoplama_env" {

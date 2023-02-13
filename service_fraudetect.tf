@@ -53,6 +53,10 @@ resource "aws_rds_cluster" "fraudetect" {
   db_subnet_group_name    = aws_db_subnet_group.fraudetect.id
   deletion_protection     = true
   skip_final_snapshot     = true
+
+  lifecycle {
+    ignore_changes = [scaling_configuration]
+  }
 }
 
 resource "aws_secretsmanager_secret" "fraudetect_env" {
