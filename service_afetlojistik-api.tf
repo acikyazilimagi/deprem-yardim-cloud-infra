@@ -60,15 +60,18 @@ resource "aws_secretsmanager_secret" "afetlojistik-api_env" {
 }
 
 resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
-  secret_id = aws_secretsmanager_secret.afetlojistik-api_env.id
+  secret_id     = aws_secretsmanager_secret.afetlojistik-api_env.id
   secret_string = jsonencode({
     DOCDB_HOST : aws_docdb_cluster.afetlojistik-api.endpoint
     DOCDB_PORT : aws_docdb_cluster.afetlojistik-api.port
     DOCDB_USER : aws_docdb_cluster.afetlojistik-api.master_username
     DOCDB_PASS : aws_docdb_cluster.afetlojistik-api.master_password
     DOCDB_NAME : "afetlojistik-api"
-    #    API_KEY : data.aws_secretsmanager_secret_version.afetlojistik-api["api_key"].secret_string
-    #    LIST_API_KEY : data.aws_secretsmanager_secret_version.afetlojistik-api["list_api_key"].secret_string
+    SWAGGER_ENABLED : true
+    PORT: 80
+    # mongodb://[username:password@]host[:port][/[database][?parameter_list]]
+    MONGO_URL : "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api??replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+    LOG_LEVEL : "debug"
     #    DISCORD_WEB_HOOK : data.aws_secretsmanager_secret_version.afetlojistik-api["discord_webhook"].secret_string
   })
 }
@@ -80,22 +83,22 @@ resource "aws_ecs_task_definition" "afetlojistik-api" {
   cpu                      = 2048
   memory                   = 4096
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
-  container_definitions = jsonencode([
+  container_definitions    = jsonencode([
     {
-      name   = "container-name"
-      image  = "nginx:latest" //bunu düzelticem
-      cpu    = 2048
-      memory = 4096
+      name             = "container-name"
+      image            = "nginx:latest" //bunu düzelticem
+      cpu              = 2048
+      memory           = 4096
       logConfiguration = {
         logDriver = "awslogs"
-        options = {
+        options   = {
           awslogs-create-group  = "true"
           awslogs-group         = "/ecs/afetlojistik-api"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
       }
-      essential = true
+      essential    = true
       portMappings = [
         {
           containerPort = 80
@@ -114,10 +117,14 @@ resource "aws_lb_target_group" "afetlojistik-api" {
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/"
+    path     = "/health"
     port     = 80
     protocol = "HTTP"
-    matcher  = "200,202,302"
+    matcher  = "200"
+    healthy_threshold = 2
+    unhealthy_threshold = 3
+    timeout = 10
+    interval = 15
   }
   tags = {
     Name        = "afetlojistik-api"
@@ -130,7 +137,7 @@ resource "aws_ecs_service" "afetlojistik-api" {
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.afetlojistik-api.id
   desired_count   = 1
-  depends_on = [
+  depends_on      = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.afetlojistik-api,
     aws_lb_target_group.afetlojistik-api,
@@ -195,4 +202,45 @@ resource "aws_lb_listener" "afetlojistik-api" {
   depends_on = [
     aws_lb.afetlojistik-api
   ]
+}
+
+
+resource "aws_appautoscaling_target" "api-afetlojistik-target" {
+  max_capacity = 10
+  min_capacity = 1
+  resource_id = "service/${aws_ecs_cluster.base-cluster.name}/${aws_ecs_service.afetlojistik-api.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "api-afetlojistik-memory" {
+  name               = "api-afetlojistik-memory"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.api-afetlojistik-target.resource_id
+  scalable_dimension = aws_appautoscaling_target.api-afetlojistik-target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.api-afetlojistik-target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+    }
+
+    target_value       = 80
+  }
+}
+
+resource "aws_appautoscaling_policy" "api-afetlojistik-cpu" {
+  name = "api-afetlojistik-cpu"
+  policy_type = "TargetTrackingScaling"
+  resource_id = aws_appautoscaling_target.api-afetlojistik-target.resource_id
+  scalable_dimension = aws_appautoscaling_target.api-afetlojistik-target.scalable_dimension
+  service_namespace = aws_appautoscaling_target.api-afetlojistik-target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value = 60
+  }
 }
