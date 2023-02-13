@@ -68,6 +68,7 @@ resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
     DOCDB_PASS : aws_docdb_cluster.afetlojistik-api.master_password
     DOCDB_NAME : "afetlojistik-api"
     SWAGGER_ENABLED : true
+    PORT: 80
     # mongodb://[username:password@]host[:port][/[database][?parameter_list]]
     MONGO_URL : "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api??replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     LOG_LEVEL : "debug"
