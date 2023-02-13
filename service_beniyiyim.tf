@@ -108,6 +108,11 @@ resource "aws_lb" "beniyiyim-alb" {
   }
 }
 
+resource "aws_wafv2_web_acl_association" "beniyiyim-alb" {
+  resource_arn = aws_lb.beniyiyim-alb.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
+}
+
 resource "aws_lb_listener" "beniyiyim-alb-listener" {
   load_balancer_arn = aws_lb.beniyiyim-alb.arn
   port              = "80"

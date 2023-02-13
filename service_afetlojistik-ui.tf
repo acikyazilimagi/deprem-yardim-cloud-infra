@@ -108,6 +108,11 @@ resource "aws_lb" "afetlojistik-ui" {
   }
 }
 
+resource "aws_wafv2_web_acl_association" "afetlojistik-ui" {
+  resource_arn = aws_lb.afetlojistik-ui.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
+}
+
 resource "aws_lb_listener" "afetlojistik-ui" {
   load_balancer_arn = aws_lb.afetlojistik-ui.arn
   port              = "80"

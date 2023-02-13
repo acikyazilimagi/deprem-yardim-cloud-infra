@@ -189,6 +189,11 @@ resource "aws_lb" "fraudetect" {
   }
 }
 
+resource "aws_wafv2_web_acl_association" "fraudetect" {
+  resource_arn = aws_lb.fraudetect.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
+}
+
 resource "aws_lb_listener" "fraudetect" {
   load_balancer_arn = aws_lb.fraudetect.arn
   port              = "80"
