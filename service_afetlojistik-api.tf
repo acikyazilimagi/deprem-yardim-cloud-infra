@@ -50,7 +50,7 @@ resource "aws_docdb_cluster" "afetlojistik-api" {
 }
 
 resource "aws_docdb_cluster_instance" "afetlojistik-api" {
-  cluster_identifier = aws_docdb_cluster_instance.afetlojistik-api.id
+  cluster_identifier = aws_docdb_cluster.afetlojistik-api.id
   instance_class     = "db.t3.medium"
   identifier         = "afetlojistik-api"
 }
