@@ -110,14 +110,14 @@ resource "aws_ecs_task_definition" "afetlojistik-api" {
 
 resource "aws_lb_target_group" "afetlojistik-api" {
   name        = "afetlojistik-api"
-  port        = 3000
+  port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
     path     = "/health"
-    port     = 3000
+    port     = 80
     protocol = "HTTP"
     matcher  = "200,202,302"
   }
