@@ -1,16 +1,16 @@
 locals {
   afetlojistik-api = {
     secrets = {
-      db_user = "/projects/afetlojistik-api/db/user"
-      db_pass = "/projects/afetlojistik-api/db/pass"
-      JWT_SECRET = "/projects/afetlojistik/jwt" # done
-      OPTIYOL_TOKEN = "/projects/afetlojistik/optiyol-token"
+      db_user                 = "/projects/afetlojistik-api/db/user"
+      db_pass                 = "/projects/afetlojistik-api/db/pass"
+      JWT_SECRET              = "/projects/afetlojistik/jwt" # done
+      OPTIYOL_TOKEN           = "/projects/afetlojistik/optiyol-token"
       INTEGRATION_OPTIYOL_URL = "/projects/afetlojistik/integration-optiyol-url"
-      OPTIYOL_COMPANY_NAME = "/projects/afetlojistik/optiyol-company-name"
-      AWS_REGION : "/projects/afetlojistik/aws-region"
-      AWS_ACCESS_KEY : "/projects/afetlojistik/aws-access-key"
-      AWS_SECRET_KEY : "/projects/afetlojistik/aws-secret-key"
-      DEBUG_BYPASS_CODE : "/projects/afetlojistik/debug-bypass-code"
+      OPTIYOL_COMPANY_NAME    = "/projects/afetlojistik/optiyol-company-name"
+      AWS_REGION              = "/projects/afetlojistik/aws-region"
+      AWS_ACCESS_KEY          = "/projects/afetlojistik/aws-access-key"
+      AWS_SECRET_KEY          = "/projects/afetlojistik/aws-secret-key"
+      DEBUG_BYPASS_CODE       = "/projects/afetlojistik/debug-bypass-code"
     }
   }
 }
@@ -68,7 +68,7 @@ resource "aws_secretsmanager_secret" "afetlojistik-api_env" {
 }
 
 resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
-  secret_id     = aws_secretsmanager_secret.afetlojistik-api_env.id
+  secret_id = aws_secretsmanager_secret.afetlojistik-api_env.id
   secret_string = jsonencode({
     DOCDB_HOST : aws_docdb_cluster.afetlojistik-api.endpoint
     DOCDB_PORT : aws_docdb_cluster.afetlojistik-api.port
@@ -81,13 +81,13 @@ resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
     PORT : "80"
     LOG_LEVEL : "debug"
     SERVICE_TIMEOUT : "10000"
-    JWT_SECRET :  data.aws_secretsmanager_secret_version.afetlojistik-api["JWT_SECRET"].secret_string
+    JWT_SECRET : data.aws_secretsmanager_secret_version.afetlojistik-api["JWT_SECRET"].secret_string
     INTEGRATION_OPTIYOL_URL : data.aws_secretsmanager_secret_version.afetlojistik-api["INTEGRATION_OPTIYOL_URL"].secret_string
-    OPTIYOL_TOKEN :  data.aws_secretsmanager_secret_version.afetlojistik-api["OPTIYOL_TOKEN"].secret_string
-    OPTIYOL_COMPANY_NAME :  data.aws_secretsmanager_secret_version.afetlojistik-api["OPTIYOL_COMPANY_NAME"].secret_string
-    AWS_REGION :  data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_REGION"].secret_string
-    AWS_ACCESS_KEY :  data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_ACCESS_KEY"].secret_string
-    AWS_SECRET_KEY :  data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_SECRET_KEY"].secret_string
+    OPTIYOL_TOKEN : data.aws_secretsmanager_secret_version.afetlojistik-api["OPTIYOL_TOKEN"].secret_string
+    OPTIYOL_COMPANY_NAME : data.aws_secretsmanager_secret_version.afetlojistik-api["OPTIYOL_COMPANY_NAME"].secret_string
+    AWS_REGION : data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_REGION"].secret_string
+    AWS_ACCESS_KEY : data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_ACCESS_KEY"].secret_string
+    AWS_SECRET_KEY : data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_SECRET_KEY"].secret_string
     DEBUG_BYPASS_SMS : "false"
     DEBUG_BYPASS_CODE : data.aws_secretsmanager_secret_version.afetlojistik-api["DEBUG_BYPASS_CODE"].secret_string
   })
@@ -100,22 +100,22 @@ resource "aws_ecs_task_definition" "afetlojistik-api" {
   cpu                      = 2048
   memory                   = 4096
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
-  container_definitions    = jsonencode([
+  container_definitions = jsonencode([
     {
-      name             = "container-name"
-      image            = "nginx:latest" //bunu düzelticem
-      cpu              = 2048
-      memory           = 4096
+      name   = "container-name"
+      image  = "nginx:latest" //bunu düzelticem
+      cpu    = 2048
+      memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
-        options   = {
+        options = {
           awslogs-create-group  = "true"
           awslogs-group         = "/ecs/afetlojistik-api"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
       }
-      essential    = true
+      essential = true
       portMappings = [
         {
           containerPort = 80
@@ -133,15 +133,15 @@ resource "aws_lb_target_group" "afetlojistik-api" {
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
-    enabled  = true
-    path     = "/health"
-    port     = 80
-    protocol = "HTTP"
-    matcher  = "200"
-    healthy_threshold = 2
+    enabled             = true
+    path                = "/health"
+    port                = 80
+    protocol            = "HTTP"
+    matcher             = "200"
+    healthy_threshold   = 2
     unhealthy_threshold = 3
-    timeout = 10
-    interval = 15
+    timeout             = 10
+    interval            = 15
   }
   tags = {
     Name        = "afetlojistik-api"
@@ -154,7 +154,7 @@ resource "aws_ecs_service" "afetlojistik-api" {
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.afetlojistik-api.id
   desired_count   = 1
-  depends_on      = [
+  depends_on = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.afetlojistik-api,
     aws_lb_target_group.afetlojistik-api,
@@ -205,6 +205,11 @@ resource "aws_lb" "afetlojistik-api" {
   tags = {
     Name = "afetlojistik-api"
   }
+}
+
+resource "aws_wafv2_web_acl_association" "afetlojistik-api" {
+  resource_arn = aws_lb.afetlojistik-api.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
 }
 
 resource "aws_lb_listener" "afetlojistik-api" {

@@ -108,6 +108,11 @@ resource "aws_lb" "depremio-api" {
   }
 }
 
+resource "aws_wafv2_web_acl_association" "depremio-api" {
+  resource_arn = aws_lb.depremio-api.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
+}
+
 resource "aws_lb_listener" "depremio-api" {
   load_balancer_arn = aws_lb.depremio-api.arn
   port              = "80"

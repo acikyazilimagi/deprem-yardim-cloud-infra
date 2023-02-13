@@ -108,6 +108,11 @@ resource "aws_lb" "veritoplama_ui" {
   }
 }
 
+resource "aws_wafv2_web_acl_association" "veritoplama_ui" {
+  resource_arn = aws_lb.veritoplama_ui.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
+}
+
 resource "aws_lb_listener" "veritoplama_ui" {
   load_balancer_arn = aws_lb.veritoplama_ui.arn
   port              = "80"
