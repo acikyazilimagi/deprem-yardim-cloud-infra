@@ -178,8 +178,6 @@ resource "aws_lb" "afetlojistik-api" {
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
-  enable_deletion_protection = true
-
   tags = {
     Name = "afetlojistik-api"
   }
