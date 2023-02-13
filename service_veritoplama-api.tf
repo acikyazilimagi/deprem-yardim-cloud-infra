@@ -1,8 +1,9 @@
 locals {
   veritoplama = {
     secrets = {
-      db_user = "/projects/veritoplama/db/user"
-      db_pass = "/projects/veritoplama/db/pass"
+      db_user   = "/projects/veritoplama/db/user"
+      db_pass   = "/projects/veritoplama/db/pass"
+      mongo_uri = "/projects/veritoplama/mongo/uri"
     }
   }
 }
@@ -66,6 +67,7 @@ resource "aws_secretsmanager_secret_version" "veritoplama_env" {
     PG_PORT : aws_rds_cluster.veritoplama_api.port
     PG_USER : aws_rds_cluster.veritoplama_api.master_username
     PG_PASS : aws_rds_cluster.veritoplama_api.master_password
+    MONGO_URL : data.aws_secretsmanager_secret_version.veritoplama["mongo_uri"].secret_string
   })
 }
 
