@@ -45,17 +45,17 @@ resource "aws_db_subnet_group" "afetlojistik-api" {
 }
 
 resource "aws_docdb_cluster" "afetlojistik-api" {
-  cluster_identifier      = "afetlojistik-api"
-  engine                  = "docdb"
-  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  backup_retention_period = 5
-  master_username         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_user"].secret_string
-  master_password         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_pass"].secret_string
+  cluster_identifier              = "afetlojistik-api"
+  engine                          = "docdb"
+  availability_zones              = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  backup_retention_period         = 5
+  master_username                 = data.aws_secretsmanager_secret_version.afetlojistik-api["db_user"].secret_string
+  master_password                 = data.aws_secretsmanager_secret_version.afetlojistik-api["db_pass"].secret_string
   db_cluster_parameter_group_name = "discord-bot"
-  vpc_security_group_ids  = [aws_security_group.afetlojistik-api_db.id]
-  db_subnet_group_name    = aws_db_subnet_group.afetlojistik-api.id
-  deletion_protection     = true
-  skip_final_snapshot     = true
+  vpc_security_group_ids          = [aws_security_group.afetlojistik-api_db.id, "sg-06ff875226c82801f"] # vpn
+  db_subnet_group_name            = aws_db_subnet_group.afetlojistik-api.id
+  deletion_protection             = true
+  skip_final_snapshot             = true
 }
 
 resource "aws_docdb_cluster_instance" "afetlojistik-api" {
@@ -69,7 +69,7 @@ resource "aws_secretsmanager_secret" "afetlojistik-api_env" {
 }
 
 resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
-  secret_id = aws_secretsmanager_secret.afetlojistik-api_env.id
+  secret_id     = aws_secretsmanager_secret.afetlojistik-api_env.id
   secret_string = jsonencode({
     DOCDB_HOST : aws_docdb_cluster.afetlojistik-api.endpoint
     DOCDB_PORT : aws_docdb_cluster.afetlojistik-api.port
@@ -101,22 +101,22 @@ resource "aws_ecs_task_definition" "afetlojistik-api" {
   cpu                      = 2048
   memory                   = 4096
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
-  container_definitions = jsonencode([
+  container_definitions    = jsonencode([
     {
-      name   = "container-name"
-      image  = "nginx:latest" //bunu düzelticem
-      cpu    = 2048
-      memory = 4096
+      name             = "container-name"
+      image            = "nginx:latest" //bunu düzelticem
+      cpu              = 2048
+      memory           = 4096
       logConfiguration = {
         logDriver = "awslogs"
-        options = {
+        options   = {
           awslogs-create-group  = "true"
           awslogs-group         = "/ecs/afetlojistik-api"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
       }
-      essential = true
+      essential    = true
       portMappings = [
         {
           containerPort = 80
@@ -155,7 +155,7 @@ resource "aws_ecs_service" "afetlojistik-api" {
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.afetlojistik-api.id
   desired_count   = 1
-  depends_on = [
+  depends_on      = [
     aws_ecs_cluster.base-cluster,
     aws_ecs_task_definition.afetlojistik-api,
     aws_lb_target_group.afetlojistik-api,
