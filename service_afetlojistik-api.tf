@@ -67,7 +67,6 @@ resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
     DOCDB_USER : aws_docdb_cluster.afetlojistik-api.master_username
     DOCDB_PASS : aws_docdb_cluster.afetlojistik-api.master_password
     DOCDB_NAME : "afetlojistik-api"
-    PORT : 3000
     SWAGGER_ENABLED : true
     # mongodb://[username:password@]host[:port][/[database][?parameter_list]]
     MONGO_URL : "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api??replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
@@ -101,8 +100,8 @@ resource "aws_ecs_task_definition" "afetlojistik-api" {
       essential    = true
       portMappings = [
         {
-          containerPort = 3000
-          hostPort      = 3000
+          containerPort = 80
+          hostPort      = 80
         }
       ]
     }
@@ -149,7 +148,7 @@ resource "aws_ecs_service" "afetlojistik-api" {
   load_balancer {
     target_group_arn = aws_lb_target_group.afetlojistik-api.arn
     container_name   = "container-name"
-    container_port   = 3000
+    container_port   = 80
   }
 
   lifecycle {
@@ -188,7 +187,7 @@ resource "aws_lb" "afetlojistik-api" {
 
 resource "aws_lb_listener" "afetlojistik-api" {
   load_balancer_arn = aws_lb.afetlojistik-api.arn
-  port              = "3000"
+  port              = "80"
   protocol          = "HTTP"
 
   default_action {
