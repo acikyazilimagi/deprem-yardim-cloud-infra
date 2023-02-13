@@ -78,7 +78,7 @@ resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
     # mongodb://[username:password@]host[:port][/[database][?parameter_list]]
     MONGO_URL : "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api??replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     SWAGGER_ENABLED : "false"
-    PORT : 80
+    PORT : "80"
     LOG_LEVEL : "debug"
     SERVICE_TIMEOUT : "10000"
     JWT_SECRET :  data.aws_secretsmanager_secret_version.afetlojistik-api["JWT_SECRET"].secret_string
