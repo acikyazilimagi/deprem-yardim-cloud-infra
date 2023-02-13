@@ -3,6 +3,13 @@ locals {
     secrets = {
       db_user = "/projects/afetlojistik-api/db/user"
       db_pass = "/projects/afetlojistik-api/db/pass"
+      JWT_SECRET = "/projects/afetlojistik/jwt"
+      OPTIYOL_TOKEN = "/projects/afetlojistik/optiyol-token"
+      INTEGRATION_OPTIYOL_URL = "/projects/afetlojistik/integration-optiyol-url"
+      OPTIYOL_COMPANY_NAME = "/projects/afetlojistik/optiyol-company-name"
+      AWS_REGION : "/projects/afetlojistik/aws-sns-region"
+      AWS_PROFILE : "/projects/afetlojistik/aws-sns-profile"
+      DEBUG_BYPASS_CODE : "/projects/afetlojistik/debug-bypass-code"
     }
   }
 }
@@ -67,12 +74,20 @@ resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
     DOCDB_USER : aws_docdb_cluster.afetlojistik-api.master_username
     DOCDB_PASS : aws_docdb_cluster.afetlojistik-api.master_password
     DOCDB_NAME : "afetlojistik-api"
-    SWAGGER_ENABLED : true
-    PORT: 80
     # mongodb://[username:password@]host[:port][/[database][?parameter_list]]
     MONGO_URL : "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api??replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+    SWAGGER_ENABLED : "false"
+    PORT : 80
     LOG_LEVEL : "debug"
-    #    DISCORD_WEB_HOOK : data.aws_secretsmanager_secret_version.afetlojistik-api["discord_webhook"].secret_string
+    SERVICE_TIMEOUT : 1000
+    JWT_SECRET :  data.aws_secretsmanager_secret_version.afetlojistik-api["JWT_SECRET"].secret_string
+    INTEGRATION_OPTIYOL_URL : data.aws_secretsmanager_secret_version.afetlojistik-api["INTEGRATION_OPTIYOL_URL"].secret_string
+    OPTIYOL_TOKEN :  data.aws_secretsmanager_secret_version.afetlojistik-api["OPTIYOL_TOKEN"].secret_string
+    OPTIYOL_COMPANY_NAME :  data.aws_secretsmanager_secret_version.afetlojistik-api["OPTIYOL_COMPANY_NAME"].secret_string
+    AWS_REGION :  data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_REGION"].secret_string
+    AWS_PROFILE :  data.aws_secretsmanager_secret_version.afetlojistik-api["AWS_PROFILE"].secret_string
+    DEBUG_BYPASS_SMS : "false"
+    DEBUG_BYPASS_CODE : data.aws_secretsmanager_secret_version.afetlojistik-api["DEBUG_BYPASS_CODE"].secret_string
   })
 }
 
@@ -202,11 +217,11 @@ resource "aws_lb_listener" "afetlojistik-api" {
 
 
 resource "aws_appautoscaling_target" "api-afetlojistik-target" {
-  max_capacity = 10
-  min_capacity = 1
-  resource_id = "service/${aws_ecs_cluster.base-cluster.name}/${aws_ecs_service.afetlojistik-api.name}"
+  max_capacity       = 10
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.base-cluster.name}/${aws_ecs_service.afetlojistik-api.name}"
   scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace = "ecs"
+  service_namespace  = "ecs"
 }
 
 resource "aws_appautoscaling_policy" "api-afetlojistik-memory" {
@@ -221,16 +236,16 @@ resource "aws_appautoscaling_policy" "api-afetlojistik-memory" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value       = 80
+    target_value = 80
   }
 }
 
 resource "aws_appautoscaling_policy" "api-afetlojistik-cpu" {
-  name = "api-afetlojistik-cpu"
-  policy_type = "TargetTrackingScaling"
-  resource_id = aws_appautoscaling_target.api-afetlojistik-target.resource_id
+  name               = "api-afetlojistik-cpu"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.api-afetlojistik-target.resource_id
   scalable_dimension = aws_appautoscaling_target.api-afetlojistik-target.scalable_dimension
-  service_namespace = aws_appautoscaling_target.api-afetlojistik-target.service_namespace
+  service_namespace  = aws_appautoscaling_target.api-afetlojistik-target.service_namespace
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
