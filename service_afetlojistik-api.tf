@@ -67,8 +67,11 @@ resource "aws_secretsmanager_secret_version" "afetlojistik-api_env" {
     DOCDB_USER : aws_docdb_cluster.afetlojistik-api.master_username
     DOCDB_PASS : aws_docdb_cluster.afetlojistik-api.master_password
     DOCDB_NAME : "afetlojistik-api"
-    #    API_KEY : data.aws_secretsmanager_secret_version.afetlojistik-api["api_key"].secret_string
-    #    LIST_API_KEY : data.aws_secretsmanager_secret_version.afetlojistik-api["list_api_key"].secret_string
+    PORT : 3000
+    SWAGGER_ENABLED=true
+    # mongodb://[username:password@]host[:port][/[database][?parameter_list]]
+    MONGO_URL= "mongodb://${aws_docdb_cluster.afetlojistik-api.master_username}:${aws_docdb_cluster.afetlojistik-api.master_password}@${aws_docdb_cluster.afetlojistik-api.endpoint}:27017/afetlojistik-api??replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+    LOG_LEVEL=debug
     #    DISCORD_WEB_HOOK : data.aws_secretsmanager_secret_version.afetlojistik-api["discord_webhook"].secret_string
   })
 }
