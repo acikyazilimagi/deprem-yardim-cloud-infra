@@ -1,12 +1,12 @@
 locals {
   aws_managed_waf_rules = [
-    "AWSManagedRulesAmazonIpReputationList",
-    "AWSManagedRulesAnonymousIpList",
-    "AWSManagedRulesCommonRuleSet",
-    "AWSManagedRulesKnownBadInputsRuleSet",
-    "AWSManagedRulesLinuxRuleSet",
-    "AWSManagedRulesPHPRuleSet",
-    "AWSManagedRulesAdminProtectionRuleSet"
+    # "AWSManagedRulesAmazonIpReputationList",
+    # "AWSManagedRulesAnonymousIpList",
+    # "AWSManagedRulesCommonRuleSet",
+    # "AWSManagedRulesKnownBadInputsRuleSet",
+    # "AWSManagedRulesLinuxRuleSet",
+    # "AWSManagedRulesPHPRuleSet",
+    # "AWSManagedRulesAdminProtectionRuleSet"
   ]
 }
 
@@ -57,7 +57,8 @@ resource "aws_wafv2_web_acl" "generic" {
     }
 
     action {
-      captcha {}
+      #captcha {}
+      count {}
     }
 
     visibility_config {
