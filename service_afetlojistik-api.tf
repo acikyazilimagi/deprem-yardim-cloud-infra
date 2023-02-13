@@ -39,7 +39,7 @@ resource "aws_db_subnet_group" "afetlojistik-api" {
 resource "aws_docdb_cluster" "afetlojistik-api" {
   cluster_identifier      = "afetlojistik-api"
   engine                  = "docdb"
-  availability_zones      = ["${var.region}a", "${var.region}b"]
+  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
   backup_retention_period = 5
   master_username         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_user"].secret_string
   master_password         = data.aws_secretsmanager_secret_version.afetlojistik-api["db_pass"].secret_string
