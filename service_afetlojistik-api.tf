@@ -101,8 +101,8 @@ resource "aws_ecs_task_definition" "afetlojistik-api" {
       essential    = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 3000
+          hostPort      = 3000
         }
       ]
     }
@@ -111,14 +111,14 @@ resource "aws_ecs_task_definition" "afetlojistik-api" {
 
 resource "aws_lb_target_group" "afetlojistik-api" {
   name        = "afetlojistik-api"
-  port        = 80
+  port        = 3000
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/"
-    port     = 80
+    path     = "/health"
+    port     = 3000
     protocol = "HTTP"
     matcher  = "200,202,302"
   }
@@ -188,7 +188,7 @@ resource "aws_lb" "afetlojistik-api" {
 
 resource "aws_lb_listener" "afetlojistik-api" {
   load_balancer_arn = aws_lb.afetlojistik-api.arn
-  port              = "80"
+  port              = "3000"
   protocol          = "HTTP"
 
   default_action {
