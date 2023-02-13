@@ -199,3 +199,44 @@ resource "aws_lb_listener" "afetlojistik-api" {
     aws_lb.afetlojistik-api
   ]
 }
+
+
+resource "aws_appautoscaling_target" "api-afetlojistik-target" {
+  max_capacity = 10
+  min_capacity = 1
+  resource_id = "service/${aws_ecs_cluster.base-cluster.name}/${aws_ecs_service.afetlojistik-api.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "api-afetlojistik-memory" {
+  name               = "api-afetlojistik-memory"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.api-afetlojistik-target.resource_id
+  scalable_dimension = aws_appautoscaling_target.api-afetlojistik-target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.api-afetlojistik-target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+    }
+
+    target_value       = 80
+  }
+}
+
+resource "aws_appautoscaling_policy" "api-afetlojistik-cpu" {
+  name = "api-afetlojistik-cpu"
+  policy_type = "TargetTrackingScaling"
+  resource_id = aws_appautoscaling_target.api-afetlojistik-target.resource_id
+  scalable_dimension = aws_appautoscaling_target.api-afetlojistik-target.scalable_dimension
+  service_namespace = aws_appautoscaling_target.api-afetlojistik-target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value = 60
+  }
+}
