@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "afetlojistik-ui" {
 }
 
 resource "aws_lb_target_group" "afetlojistik-ui" {
-  name        = "veritoplama-ui"
+  name        = "afetlojistik-ui"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -95,7 +95,7 @@ resource "aws_lb_listener_rule" "afetlojistik-ui" {
 }
 
 resource "aws_lb" "afetlojistik-ui" {
-  name               = "veritoplama-ui"
+  name               = "afetlojistik-ui"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
