@@ -120,7 +120,11 @@ resource "aws_lb_target_group" "afetlojistik-api" {
     path     = "/health"
     port     = 80
     protocol = "HTTP"
-    matcher  = "200,202,302"
+    matcher  = "200"
+    healthy_threshold = 2
+    unhealthy_threshold = 3
+    timeout = 10
+    interval = 15
   }
   tags = {
     Name        = "afetlojistik-api"
