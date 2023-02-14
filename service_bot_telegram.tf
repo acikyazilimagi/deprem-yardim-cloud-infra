@@ -26,6 +26,23 @@ resource "aws_ecs_task_definition" "telegrambot-TD" {
 
 }
 
+resource "aws_service_discovery_service" "telegram-service" {
+  name = "telegram-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "telegram-service" {
   name            = "telegram-service"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -40,7 +57,12 @@ resource "aws_ecs_service" "telegram-service" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.telegram-service.arn
+    container_name = "container-name"
   }
 
   lifecycle {

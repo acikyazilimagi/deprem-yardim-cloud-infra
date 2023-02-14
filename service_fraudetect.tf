@@ -129,6 +129,23 @@ resource "aws_lb_target_group" "fraudetect" {
   }
 }
 
+resource "aws_service_discovery_service" "fraudetect" {
+  name = "fraudetect"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "SRV"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "fraudetect" {
   name            = "fraudetect"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -144,7 +161,13 @@ resource "aws_ecs_service" "fraudetect" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.fraudetect.arn
+    container_name = "container-name"
+    container_port = 80
   }
 
   load_balancer {
