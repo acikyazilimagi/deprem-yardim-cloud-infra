@@ -136,6 +136,6 @@ resource "aws_s3_bucket" "aya-deduplication" {
 }
 
 resource "aws_s3_bucket_acl" "aya-deduplication" {
-  bucket = aws_s3_bucket.deduplication.id
+  bucket = aws_s3_bucket.aya-deduplication.id
   acl    = "private"
 }
