@@ -44,6 +44,7 @@ resource "aws_instance" "deduplication" {
   ami                     = "ami-0d1ddd83282187d18"
   instance_type           = "c5.large"
   vpc_security_group_ids  = [aws_security_group.deduplication-sg.id]
+  subnet_id               = "subnet-0d3f671f3e2e77332" 
   key_name                = "key-04de29335f72dbebd"
   availability_zone       = "eu-central-1a"
 }
