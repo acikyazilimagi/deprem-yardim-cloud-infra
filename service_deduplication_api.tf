@@ -45,7 +45,7 @@ resource "aws_instance" "deduplication" {
   instance_type           = "c5.large"
   vpc_security_group_ids  = [aws_security_group.deduplication-sg.id]
   subnet_id               = "subnet-0d3f671f3e2e77332" 
-  key_name                = "key-04de29335f72dbebd"
+  key_name                = "for-ec2"
   availability_zone       = "eu-central-1a"
 }
 
