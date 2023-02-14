@@ -1,10 +1,55 @@
-resource "aws_ec2_host" "deduplication-api" {
-  instance_type     = "m5.large"
-  availability_zone = "eu-central-1a"
+variable "vpc_id" {
+  default = "vpc-03db9b9432e6b8df8"
 }
 
-resource "aws_lb" "deduplication-api-nlb" {
-  name               = "deduplication-api-nlb"
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+
+resource "aws_security_group" "deduplication-sg" {
+  name        = "deduplication"
+  description = "SG for deduplication"
+  vpc_id      = data.aws_vpc.selected.id
+
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 19530
+    to_port          = 19530
+    protocol         = "tcp"
+    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
+  }
+  
+    ingress {
+    description      = "TLS from VPC"
+    from_port        = 9091
+    to_port          = 9091
+    protocol         = "tcp"
+    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "deduplication_sg"
+  }
+}
+
+resource "aws_instance" "deduplication" {
+  ami                     = "ami-0d1ddd83282187d18"
+  instance_type           = "c5.large"
+  security_groups         = [aws_security_group.deduplication-sg.id]
+  key_name                = "key-04de29335f72dbebd"
+  availability_zone       = "eu-central-1a"
+}
+
+resource "aws_lb" "deduplication-nlb" {
+  name               = "deduplication-nlb"
   internal           = true
   load_balancer_type = "network"
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
@@ -16,40 +61,66 @@ resource "aws_lb" "deduplication-api-nlb" {
   }
 }
 
-resource "aws_lb_target_group" "deduplication-api-tg" {
-  name        = "deduplication-api-tg"
-  port        = 80
-  protocol    = "HTTP"
+resource "aws_lb_target_group" "deduplication-tg" {
+  name        = "deduplication-tg"
+  port        = 19530
+  protocol    = "TCP"
   target_type = "ip"
-  vpc_id      = aws_vpc.vpc.id
-  health_check {
-    enabled  = true
-    path     = "/health"
-    port     = 80
-    protocol = "HTTP"
-  }
+  vpc_id      = data.aws_vpc.selected.id
   tags = {
-    Name        = "deduplication-api-tg"
+    Name        = "deduplication-tg"
     Environment = var.environment
   }
 }
 
-
-resource "aws_wafv2_web_acl_association" "deduplication-api-nlb" {
-  resource_arn = aws_lb.deduplication-api-nlb.arn
-  web_acl_arn  = aws_wafv2_web_acl.generic.arn
-}
-
-resource "aws_lb_listener" "deduplication-api-nlb-listener" {
-  load_balancer_arn = aws_lb.deduplication-api-nlb.arn
-  port              = "80"
-  protocol          = "HTTP"
+resource "aws_lb_listener" "deduplication-nlb-listener" {
+  load_balancer_arn = aws_lb.deduplication-nlb.arn
+  port              = "19530"
+  protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.deduplication-api-tg.arn
+    target_group_arn = aws_lb_target_group.deduplication-tg.arn
   }
   depends_on = [
-    aws_lb.deduplication-api-nlb
+    aws_lb.deduplication-nlb
   ]
+}
+
+resource "aws_lb_target_group" "deduplication-tg-2" {
+  name        = "deduplication-tg-2"
+  port        = 9091
+  protocol    = "TCP"
+  target_type = "ip"
+  vpc_id      = data.aws_vpc.selected.id
+  tags = {
+    Name        = "deduplication-tg-2"
+    Environment = var.environment
+  }
+}
+
+resource "aws_lb_listener" "deduplication-nlb-listener-2" {
+  load_balancer_arn = aws_lb.deduplication-nlb.arn
+  port              = "9091"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.deduplication-tg.arn
+  }
+  depends_on = [
+    aws_lb.deduplication-nlb
+  ]
+}
+
+resource "aws_lb_target_group_attachment" "deduplication-19530" {
+  target_group_arn = aws_lb_target_group.deduplication-tg.arn
+  target_id        = aws_instance.deduplication.id
+  port             = 19530
+}
+
+resource "aws_lb_target_group_attachment" "deduplication-9091" {
+  target_group_arn = aws_lb_target_group.deduplication-tg-2.arn
+  target_id        = aws_instance.deduplication.id
+  port             = 9091
 }
