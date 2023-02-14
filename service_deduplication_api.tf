@@ -1,6 +1,7 @@
 resource "aws_ec2_host" "deduplication-api" {
-  instance_type     = "m5.large"
+  instance_type     = "c5.large"
   availability_zone = "eu-central-1a"
+
 }
 
 resource "aws_lb" "deduplication-api-nlb" {
@@ -18,15 +19,15 @@ resource "aws_lb" "deduplication-api-nlb" {
 
 resource "aws_lb_target_group" "deduplication-api-tg" {
   name        = "deduplication-api-tg"
-  port        = 80
-  protocol    = "HTTP"
+  port        = 19530
+  protocol    = "TCP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
   health_check {
-    enabled  = true
+    enabled  = false
     path     = "/health"
     port     = 80
-    protocol = "HTTP"
+    protocol = "TCP"
   }
   tags = {
     Name        = "deduplication-api-tg"
@@ -34,16 +35,42 @@ resource "aws_lb_target_group" "deduplication-api-tg" {
   }
 }
 
+resource "aws_lb_listener" "deduplication-api-nlb-listener" {
+  load_balancer_arn = aws_lb.deduplication-api-nlb.arn
+  port              = "19530"
+  protocol          = "TCP"
 
-resource "aws_wafv2_web_acl_association" "deduplication-api-nlb" {
-  resource_arn = aws_lb.deduplication-api-nlb.arn
-  web_acl_arn  = aws_wafv2_web_acl.generic.arn
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.deduplication-api-tg.arn
+  }
+  depends_on = [
+    aws_lb.deduplication-api-nlb
+  ]
+}
+
+resource "aws_lb_target_group" "deduplication-api-tg" {
+  name        = "deduplication-api-tg"
+  port        = 9091
+  protocol    = "TCP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.vpc.id
+  health_check {
+    enabled  = false
+    path     = "/health"
+    port     = 80
+    protocol = "TCP"
+  }
+  tags = {
+    Name        = "deduplication-api-tg"
+    Environment = var.environment
+  }
 }
 
 resource "aws_lb_listener" "deduplication-api-nlb-listener" {
   load_balancer_arn = aws_lb.deduplication-api-nlb.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "9091"
+  protocol          = "TCP"
 
   default_action {
     type             = "forward"
