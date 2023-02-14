@@ -1,16 +1,15 @@
 resource "aws_ec2_host" "deduplication-api" {
   instance_type     = "m5.large"
-  availability_zone = "eu-central-1"
+  availability_zone = "eu-central-1a"
 }
 
 resource "aws_lb" "deduplication-api-nlb" {
   name               = "deduplication-api-nlb"
-  internal           = false
+  internal           = true
   load_balancer_type = "network"
-  security_groups    = ["sg-09d6376212dfa6ea1", "sg-06ff875226c82801f", "sg-04e80daf38921c9d4", "sg-0fc6eecb89164c95f"]
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Name = "deduplication"
