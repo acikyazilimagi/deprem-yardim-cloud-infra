@@ -1,7 +1,6 @@
 resource "aws_ec2_host" "deduplication-api" {
   instance_type     = "c5.large"
   availability_zone = "eu-central-1a"
-
 }
 
 resource "aws_lb" "deduplication-api-nlb" {
@@ -49,8 +48,8 @@ resource "aws_lb_listener" "deduplication-api-nlb-listener" {
   ]
 }
 
-resource "aws_lb_target_group" "deduplication-api-tg" {
-  name        = "deduplication-api-tg"
+resource "aws_lb_target_group" "deduplication-api-tg-2" {
+  name        = "deduplication-api-tg-2"
   port        = 9091
   protocol    = "TCP"
   target_type = "ip"
@@ -62,12 +61,12 @@ resource "aws_lb_target_group" "deduplication-api-tg" {
     protocol = "TCP"
   }
   tags = {
-    Name        = "deduplication-api-tg"
+    Name        = "deduplication-api-tg-2"
     Environment = var.environment
   }
 }
 
-resource "aws_lb_listener" "deduplication-api-nlb-listener" {
+resource "aws_lb_listener" "deduplication-api-nlb-listener-2" {
   load_balancer_arn = aws_lb.deduplication-api-nlb.arn
   port              = "9091"
   protocol          = "TCP"
@@ -77,6 +76,18 @@ resource "aws_lb_listener" "deduplication-api-nlb-listener" {
     target_group_arn = aws_lb_target_group.deduplication-api-tg.arn
   }
   depends_on = [
-    aws_lb.deduplication-api-nlb
+    aws_lb.deduplication-api-nlb-2
   ]
+}
+
+resource "aws_lb_target_group_attachment" "deduplication-19530" {
+  target_group_arn = aws_lb_target_group.deduplication-api-tg.arn
+  target_id        = aws_instance.deduplication-api.id
+  port             = 19530
+}
+
+resource "aws_lb_target_group_attachment" "deduplication-9091" {
+  target_group_arn = aws_lb_target_group.deduplication-api-tg-2.arn
+  target_id        = aws_instance.deduplication-api.id
+  port             = 9091
 }
