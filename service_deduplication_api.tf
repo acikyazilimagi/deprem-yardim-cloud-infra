@@ -125,3 +125,17 @@ resource "aws_lb_target_group_attachment" "deduplication-9091" {
   target_id        = aws_instance.deduplication.id
   port             = 9091
 }
+
+resource "aws_s3_bucket" "deduplication" {
+  bucket = "deduplication"
+
+  tags = {
+    Name        = "deduplication"
+    Environment = "production"
+  }
+}
+
+resource "aws_s3_bucket_acl" "example" {
+  bucket = aws_s3_bucket.deduplication.id
+  acl    = "private"
+}
