@@ -31,6 +31,13 @@ resource "aws_security_group" "service-sg" {
   vpc_id      = aws_vpc.vpc.id
 
   ingress {
+    description = "OpenVPN"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [var.vpn_ip]
+  }
+  ingress {
     description      = "HTTP"
     from_port        = 80
     to_port          = 80

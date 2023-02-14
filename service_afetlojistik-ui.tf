@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "depremio-api" {
-  family                   = "depremio-api"
+resource "aws_ecs_task_definition" "afetlojistik-ui" {
+  family                   = "afetlojistik-ui"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -31,8 +31,8 @@ resource "aws_ecs_task_definition" "depremio-api" {
   ])
 }
 
-resource "aws_lb_target_group" "depremio-api" {
-  name        = "depremio-api"
+resource "aws_lb_target_group" "afetlojistik-ui" {
+  name        = "afetlojistik-ui"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -49,15 +49,15 @@ resource "aws_lb_target_group" "depremio-api" {
   }
 }
 
-resource "aws_ecs_service" "depremio-api" {
-  name            = "depremio-api"
+resource "aws_ecs_service" "afetlojistik-ui" {
+  name            = "afetlojistik-ui"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.depremio-api.id
+  task_definition = aws_ecs_task_definition.afetlojistik-ui.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.depremio-api,
-    aws_lb_target_group.depremio-api,
+    aws_ecs_task_definition.afetlojistik-ui,
+    aws_lb_target_group.afetlojistik-ui,
   ]
   launch_type = "FARGATE"
 
@@ -68,7 +68,7 @@ resource "aws_ecs_service" "depremio-api" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.depremio-api.arn
+    target_group_arn = aws_lb_target_group.afetlojistik-ui.arn
     container_name   = "container-name"
     container_port   = 80
   }
@@ -78,13 +78,13 @@ resource "aws_ecs_service" "depremio-api" {
   }
 }
 
-resource "aws_lb_listener_rule" "depremio-api" {
-  listener_arn = aws_lb_listener.depremio-api.arn
+resource "aws_lb_listener_rule" "afetlojistik-ui" {
+  listener_arn = aws_lb_listener.afetlojistik-ui.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.depremio-api.arn
+    target_group_arn = aws_lb_target_group.afetlojistik-ui.arn
   }
 
   condition {
@@ -94,8 +94,8 @@ resource "aws_lb_listener_rule" "depremio-api" {
   }
 }
 
-resource "aws_lb" "depremio-api" {
-  name               = "depremio-api"
+resource "aws_lb" "afetlojistik-ui" {
+  name               = "afetlojistik-ui"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -108,21 +108,21 @@ resource "aws_lb" "depremio-api" {
   }
 }
 
-resource "aws_wafv2_web_acl_association" "depremio-api" {
-  resource_arn = aws_lb.depremio-api.arn
+resource "aws_wafv2_web_acl_association" "afetlojistik-ui" {
+  resource_arn = aws_lb.afetlojistik-ui.arn
   web_acl_arn  = aws_wafv2_web_acl.generic.arn
 }
 
-resource "aws_lb_listener" "depremio-api" {
-  load_balancer_arn = aws_lb.depremio-api.arn
+resource "aws_lb_listener" "afetlojistik-ui" {
+  load_balancer_arn = aws_lb.afetlojistik-ui.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.depremio-api.arn
+    target_group_arn = aws_lb_target_group.afetlojistik-ui.arn
   }
   depends_on = [
-    aws_lb.depremio-api
+    aws_lb.afetlojistik-ui
   ]
 }

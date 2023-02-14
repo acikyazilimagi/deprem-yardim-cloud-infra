@@ -1,26 +1,23 @@
 locals {
   fraudetect = {
     secrets = {
-      db_user = "/projects/fraudetect/db/user"
-      db_pass = "/projects/fraudetect/db/pass"
+      db_user         = "/projects/fraudetect/db/user"
+      db_pass         = "/projects/fraudetect/db/pass"
+      api_key         = "/projects/fraudetect/api/key"
+      list_api_key    = "/projects/fraudetect/api/list/key"
+      discord_webhook = "/projects/fraudetect/discord/webhook"
     }
   }
 }
 
-data "aws_secretsmanager_secret" "fraudetect_db_user" {
-  name = local.fraudetect.secrets.db_user
+data "aws_secretsmanager_secret" "fraudetect" {
+  for_each = local.fraudetect.secrets
+  name     = each.value
 }
 
-data "aws_secretsmanager_secret_version" "fraudetect_db_user" {
-  secret_id = data.aws_secretsmanager_secret.fraudetect_db_user.id
-}
-
-data "aws_secretsmanager_secret" "fraudetect_db_pass" {
-  name = local.fraudetect.secrets.db_pass
-}
-
-data "aws_secretsmanager_secret_version" "fraudetect_db_pass" {
-  secret_id = data.aws_secretsmanager_secret.fraudetect_db_pass.id
+data "aws_secretsmanager_secret_version" "fraudetect" {
+  for_each  = local.fraudetect.secrets
+  secret_id = data.aws_secretsmanager_secret.fraudetect[each.key].id
 }
 
 resource "aws_security_group" "fraudetect_db" {
@@ -50,11 +47,16 @@ resource "aws_rds_cluster" "fraudetect" {
   availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
   database_name           = "fraudetect"
   backup_retention_period = 5
-  master_username         = data.aws_secretsmanager_secret_version.fraudetect_db_user.secret_string
-  master_password         = data.aws_secretsmanager_secret_version.fraudetect_db_pass.secret_string
+  master_username         = data.aws_secretsmanager_secret_version.fraudetect["db_user"].secret_string
+  master_password         = data.aws_secretsmanager_secret_version.fraudetect["db_pass"].secret_string
   vpc_security_group_ids  = [aws_security_group.fraudetect_db.id]
   db_subnet_group_name    = aws_db_subnet_group.fraudetect.id
   deletion_protection     = true
+  skip_final_snapshot     = true
+
+  lifecycle {
+    ignore_changes = [scaling_configuration]
+  }
 }
 
 resource "aws_secretsmanager_secret" "fraudetect_env" {
@@ -68,6 +70,10 @@ resource "aws_secretsmanager_secret_version" "fraudetect_env" {
     MYSQL_PORT : aws_rds_cluster.fraudetect.port
     MYSQL_USER : aws_rds_cluster.fraudetect.master_username
     MYSQL_PASS : aws_rds_cluster.fraudetect.master_password
+    MYSQL_NAME : "fraudetect"
+    API_KEY : data.aws_secretsmanager_secret_version.fraudetect["api_key"].secret_string
+    LIST_API_KEY : data.aws_secretsmanager_secret_version.fraudetect["list_api_key"].secret_string
+    DISCORD_WEB_HOOK : data.aws_secretsmanager_secret_version.fraudetect["discord_webhook"].secret_string
   })
 }
 
@@ -115,6 +121,7 @@ resource "aws_lb_target_group" "fraudetect" {
     path     = "/"
     port     = 80
     protocol = "HTTP"
+    matcher  = "200,202,302"
   }
   tags = {
     Name        = "fraudetect"
@@ -180,6 +187,11 @@ resource "aws_lb" "fraudetect" {
   tags = {
     Name = "fraudetect"
   }
+}
+
+resource "aws_wafv2_web_acl_association" "fraudetect" {
+  resource_arn = aws_lb.fraudetect.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
 }
 
 resource "aws_lb_listener" "fraudetect" {

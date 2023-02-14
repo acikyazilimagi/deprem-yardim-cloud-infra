@@ -92,6 +92,11 @@ resource "aws_lb" "eczane-front-alb" {
   }
 }
 
+resource "aws_wafv2_web_acl_association" "eczane-front-alb" {
+  resource_arn = aws_lb.eczane-front-alb.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
+}
+
 resource "aws_lb_listener" "eczane-front-alb-listener" {
   load_balancer_arn = aws_lb.eczane-front-alb.arn
   port              = "80"

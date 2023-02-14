@@ -39,7 +39,7 @@ resource "aws_lb_target_group" "deprem-openai-api-tg" {
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/api/health"
+    path     = "/health"
     port     = 80
     protocol = "HTTP"
   }
@@ -99,7 +99,7 @@ resource "aws_lb" "deprem-openai-api-alb" {
   name               = "deprem-openai-api-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
+  security_groups    = ["sg-09d6376212dfa6ea1", "sg-06ff875226c82801f", "sg-04e80daf38921c9d4", "sg-0fc6eecb89164c95f"]
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
@@ -107,6 +107,11 @@ resource "aws_lb" "deprem-openai-api-alb" {
   tags = {
     Name = "deprem-openai-api-alb"
   }
+}
+
+resource "aws_wafv2_web_acl_association" "deprem-openai-api-alb" {
+  resource_arn = aws_lb.deprem-openai-api-alb.arn
+  web_acl_arn  = aws_wafv2_web_acl.generic.arn
 }
 
 resource "aws_lb_listener" "deprem-openai-api-alb-listener" {
