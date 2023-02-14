@@ -139,3 +139,42 @@ resource "aws_s3_bucket_acl" "aya-deduplication" {
   bucket = aws_s3_bucket.aya-deduplication.id
   acl    = "private"
 }
+
+resource "aws_iam_user" "aya-deduplication-user" {
+  name = "aya-deduplication-user"
+
+  tags = {
+    Name = "aya-deduplication"
+  }
+}
+
+resource "aws_iam_access_key" "aya-deduplication" {
+  user = aws_iam_user.aya-deduplication-user.name
+}
+
+resource "aws_iam_policy" "aya-deduplication-policy" {
+  name = "aya-deduplication-policy"
+  policy = jsonencode({
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Actions": [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject"
+    ],
+     "Resources": [
+      "arn:aws:s3:::aya-deduplication",
+      "arn:aws:s3:::aya-deduplication/*"
+      ]
+    }
+  ]
+})
+}
+
+resource "aws_iam_user_policy_attachment" "aya-deduplication-policy" {
+  user       = aws_iam_user.aya-deduplication-user.name
+  policy_arn = aws_iam_policy.aya-deduplication-policy.arn
+}
