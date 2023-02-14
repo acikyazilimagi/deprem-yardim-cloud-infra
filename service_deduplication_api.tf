@@ -66,7 +66,7 @@ resource "aws_lb_target_group" "deduplication-tg" {
   name        = "deduplication-tg"
   port        = 19530
   protocol    = "TCP"
-  target_type = "ip"
+  target_type = "instance"
   vpc_id      = data.aws_vpc.selected.id
   tags = {
     Name        = "deduplication-tg"
@@ -92,7 +92,7 @@ resource "aws_lb_target_group" "deduplication-tg-2" {
   name        = "deduplication-tg-2"
   port        = 9091
   protocol    = "TCP"
-  target_type = "ip"
+  target_type = "instance"
   vpc_id      = data.aws_vpc.selected.id
   tags = {
     Name        = "deduplication-tg-2"
