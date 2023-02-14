@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "veritoplama_ui" {
-  family                   = "veritoplama_ui"
+resource "aws_ecs_task_definition" "veri-toplama-ui-TD" {
+  family                   = "veri-toplama-ui-TD"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
@@ -8,14 +8,14 @@ resource "aws_ecs_task_definition" "veritoplama_ui" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "nginx:latest"
+      image  = "veri-toplama-ui"
       cpu    = 2048
       memory = 4096
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/depremio"
+          awslogs-group         = "/ecs/veri-toplama-ui"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -31,8 +31,8 @@ resource "aws_ecs_task_definition" "veritoplama_ui" {
   ])
 }
 
-resource "aws_lb_target_group" "veritoplama_ui" {
-  name        = "veritoplama-ui"
+resource "aws_lb_target_group" "veri-toplama-ui-tg" {
+  name        = "veri-toplama-ui-tg"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -44,31 +44,31 @@ resource "aws_lb_target_group" "veritoplama_ui" {
     protocol = "HTTP"
   }
   tags = {
-    Name        = "depremio-tg"
+    Name        = "veri-toplama-ui-tg"
     Environment = var.environment
   }
 }
 
-resource "aws_ecs_service" "veritoplama_ui" {
-  name            = "veritoplama_ui"
+resource "aws_ecs_service" "veri-toplama-ui-service" {
+  name            = "veri-toplama-ui-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.veritoplama_ui.id
+  task_definition = aws_ecs_task_definition.veri-toplama-ui-TD.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.veritoplama_ui,
-    aws_lb_target_group.veritoplama_ui,
+    aws_ecs_task_definition.veri-toplama-ui-TD,
+    aws_lb_target_group.veri-toplama-ui-tg,
   ]
   launch_type = "FARGATE"
 
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
-    security_groups  = [aws_security_group.ecs-default-sg.id]
+    security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.veritoplama_ui.arn
+    target_group_arn = aws_lb_target_group.veri-toplama-ui-tg.arn
     container_name   = "container-name"
     container_port   = 80
   }
@@ -78,24 +78,8 @@ resource "aws_ecs_service" "veritoplama_ui" {
   }
 }
 
-resource "aws_lb_listener_rule" "veritoplama_ui" {
-  listener_arn = aws_lb_listener.veritoplama_ui.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.veritoplama_ui.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["*"]
-    }
-  }
-}
-
-resource "aws_lb" "veritoplama_ui" {
-  name               = "veritoplama-ui"
+resource "aws_lb" "veri-toplama-ui-alb" {
+  name               = "veri-toplama-ui"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -104,25 +88,41 @@ resource "aws_lb" "veritoplama_ui" {
   enable_deletion_protection = true
 
   tags = {
-    Name = "depremio-alb"
+    Name = "veri-toplama-ui-alb"
   }
 }
 
-resource "aws_wafv2_web_acl_association" "veritoplama_ui" {
-  resource_arn = aws_lb.veritoplama_ui.arn
+resource "aws_wafv2_web_acl_association" "veri-toplama-ui-alb" {
+  resource_arn = aws_lb.veri-toplama-ui-alb.arn
   web_acl_arn  = aws_wafv2_web_acl.generic.arn
 }
 
-resource "aws_lb_listener" "veritoplama_ui" {
-  load_balancer_arn = aws_lb.veritoplama_ui.arn
+resource "aws_lb_listener" "veri-toplama-ui-alb-listener" {
+  load_balancer_arn = aws_lb.veri-toplama-ui-alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.veritoplama_ui.arn
+    target_group_arn = aws_lb_target_group.veri-toplama-ui-tg.arn
   }
   depends_on = [
-    aws_lb.veritoplama_ui
+    aws_lb.veri-toplama-ui-alb
   ]
+}
+
+resource "aws_lb_listener_rule" "veri-toplama-ui-rule" {
+  listener_arn = aws_lb_listener.veri-toplama-ui-alb-listener.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.veri-toplama-ui-tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
 }
