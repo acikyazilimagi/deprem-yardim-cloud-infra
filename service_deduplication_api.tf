@@ -160,10 +160,7 @@ resource "aws_iam_policy" "aya-deduplication-policy" {
     {
       "Effect": "Allow",
       "Action": [
-      "s3:ListBucket",
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:DeleteObject"
+      "s3:*"
     ],
      "Resource": [
       "arn:aws:s3:::aya-deduplication",
