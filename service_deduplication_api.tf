@@ -1,14 +1,22 @@
+variable "vpc_id" {
+  default = "vpc-03db9b9432e6b8df8"
+}
+
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+
 resource "aws_security_group" "deduplication-sg" {
   name        = "deduplication"
   description = "SG for deduplication"
-  vpc_id      = aws_vpc.vpc-03db9b9432e6b8df8.id
+  vpc_id      = data.aws_vpc.selected.id
 
   ingress {
     description      = "TLS from VPC"
     from_port        = 19530
     to_port          = 19530
     protocol         = "tcp"
-    cidr_blocks      = [aws_vpc.vpc-03db9b9432e6b8df8.cidr_block]
+    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
   }
   
     ingress {
@@ -16,7 +24,7 @@ resource "aws_security_group" "deduplication-sg" {
     from_port        = 9091
     to_port          = 9091
     protocol         = "tcp"
-    cidr_blocks      = [aws_vpc.vpc-03db9b9432e6b8df8.cidr_block]
+    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
   }
 
   egress {
@@ -58,13 +66,7 @@ resource "aws_lb_target_group" "deduplication-tg" {
   port        = 19530
   protocol    = "TCP"
   target_type = "ip"
-  vpc_id      = aws_vpc.vpc.id
-  health_check {
-    enabled  = false
-    path     = "/health"
-    port     = 80
-    protocol = "TCP"
-  }
+  vpc_id      = data.aws_vpc.selected.id
   tags = {
     Name        = "deduplication-tg"
     Environment = var.environment
@@ -90,13 +92,7 @@ resource "aws_lb_target_group" "deduplication-tg-2" {
   port        = 9091
   protocol    = "TCP"
   target_type = "ip"
-  vpc_id      = aws_vpc.vpc.id
-  health_check {
-    enabled  = false
-    path     = "/health"
-    port     = 80
-    protocol = "TCP"
-  }
+  vpc_id      = data.aws_vpc.selected.id
   tags = {
     Name        = "deduplication-tg-2"
     Environment = var.environment
@@ -113,7 +109,7 @@ resource "aws_lb_listener" "deduplication-nlb-listener-2" {
     target_group_arn = aws_lb_target_group.deduplication-tg.arn
   }
   depends_on = [
-    aws_lb.deduplication-nlb-2
+    aws_lb.deduplication-nlb
   ]
 }
 
