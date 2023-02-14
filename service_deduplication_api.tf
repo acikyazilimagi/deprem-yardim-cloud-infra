@@ -126,8 +126,8 @@ resource "aws_lb_target_group_attachment" "deduplication-9091" {
   port             = 9091
 }
 
-resource "aws_s3_bucket" "deduplication" {
-  bucket = "deduplication"
+resource "aws_s3_bucket" "aya-deduplication" {
+  bucket = "aya-deduplication"
 
   tags = {
     Name        = "deduplication"
@@ -135,7 +135,7 @@ resource "aws_s3_bucket" "deduplication" {
   }
 }
 
-resource "aws_s3_bucket_acl" "example" {
-  bucket = aws_s3_bucket.deduplication.id
+resource "aws_s3_bucket_acl" "aya-deduplication" {
+  bucket = aws_s3_bucket.aya-deduplication.id
   acl    = "private"
 }
