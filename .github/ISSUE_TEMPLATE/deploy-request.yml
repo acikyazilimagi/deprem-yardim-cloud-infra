@@ -1,0 +1,61 @@
+name: Deploy İsteği
+description: Projeniz için deploy isteği oluşturun
+title: "[DEPLOY] <title>"
+labels: ["deploy", "waiting-approval"]
+body:
+  - type: input
+    id: repo-url
+    attributes:
+      label: Repo URL
+      description: AYA altındaki repo URL'i
+      placeholder: https://github.com/acikkaynak/deprem-yardim-backend-go
+    validations:
+      required: true
+  - type: textarea
+    id: discord-id
+    attributes:
+      label: Discord ID
+      description: Discord ID'nizi girin
+    validations:
+      required: true
+  - type: textarea
+    id: domain-info
+    attributes:
+      label: Domain sahibi kim?
+      description: Domain kime ait ve varsa cloudflare hesabı kimde olduğunu açıklayın.
+    validations:
+      required: true
+  - type: dropdown
+    id: dockerize
+    attributes:
+      label: Projeniz dockerize edildi mi?
+      description: Projeniz dockerize edilmediyse dockerize edin ve Dockerfile'ınızı repo'ya ekleyin.
+      options:
+        - Evet
+        - Hayır
+    validations:
+      required: true
+  - type: dropdown
+    id: health-check
+    attributes:
+      label: Projenizde health check var mı?
+      description: Projenizde health check yoksa `/health` endpointi ekleyin.
+      options:
+        - Evet
+        - Hayır
+    validations:
+      required: true
+  - type: textarea
+    id: environment-variables
+    attributes:
+      label: Projenizdeki environment variable'lar neler?
+      description: Projenizde kullanılan environment variable'ları örnek olarak girin.
+    validations:
+      required: true
+  - type: textarea
+    id: anything-else
+    attributes:
+      label: Eklemek istediğiniz bir şey var mı?
+      description: Projeniz hakkında eklemek istediğiniz bir şey varsa buraya yazın.
+    validations:
+      required: false
