@@ -49,6 +49,23 @@ resource "aws_lb_target_group" "afetlojistik-ui" {
   }
 }
 
+resource "aws_service_discovery_service" "afetlojistik-ui" {
+  name = "afetlojistik-ui"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "SRV"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "afetlojistik-ui" {
   name            = "afetlojistik-ui"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -64,7 +81,13 @@ resource "aws_ecs_service" "afetlojistik-ui" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.ecs-default-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.afetlojistik-ui.arn
+    container_name = "container-name"
+    container_port = 80
   }
 
   load_balancer {

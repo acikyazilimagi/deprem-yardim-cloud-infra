@@ -25,6 +25,23 @@ resource "aws_ecs_task_definition" "address-telegram-TD" {
   ])
 }
 
+resource "aws_service_discovery_service" "address-telegram-service" {
+  name = "address-telegram-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "address-telegram-service" {
   name            = "address-telegram-service"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -39,7 +56,12 @@ resource "aws_ecs_service" "address-telegram-service" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.address-telegram-service.arn
+    container_name = "container-name"
   }
 
   lifecycle {
@@ -74,6 +96,23 @@ resource "aws_ecs_task_definition" "address-twitter-TD" {
   ])
 }
 
+resource "aws_service_discovery_service" "address-twitter-service" {
+  name = "address-twitter-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "address-twitter-service" {
   name            = "address-twitter-service"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -88,7 +127,12 @@ resource "aws_ecs_service" "address-twitter-service" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.address-twitter-service.arn
+    container_name = "container-name"
   }
 
   lifecycle {
@@ -127,6 +171,23 @@ resource "aws_ecs_task_definition" "address-discord-TD" {
   ])
 }
 
+resource "aws_service_discovery_service" "address-discord-service" {
+  name = "address-discord-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "address-discord-service" {
   name            = "address-discord-service"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -141,7 +202,12 @@ resource "aws_ecs_service" "address-discord-service" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.address-discord-service.arn
+    container_name = "container-name"
   }
 
   lifecycle {
@@ -176,6 +242,23 @@ resource "aws_ecs_task_definition" "address-twitch-TD" {
   ])
 }
 
+resource "aws_service_discovery_service" "address-twitch-service" {
+  name = "address-twitch-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "address-twitch-service" {
   name            = "address-twitch-service"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -190,7 +273,12 @@ resource "aws_ecs_service" "address-twitch-service" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.address-twitch-service.arn
+    container_name = "container-name"
   }
 
   lifecycle {
@@ -225,6 +313,23 @@ resource "aws_ecs_task_definition" "address-data-excell-TD" {
   ])
 }
 
+resource "aws_service_discovery_service" "address-data-excell-service" {
+  name = "address-data-excell-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.sd.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "address-data-excell-service" {
   name            = "address-data-excell-service"
   cluster         = aws_ecs_cluster.base-cluster.id
@@ -239,7 +344,12 @@ resource "aws_ecs_service" "address-data-excell-service" {
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
     security_groups  = [aws_security_group.service-sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.address-data-excell-service.arn
+    container_name = "container-name"
   }
 
   lifecycle {
