@@ -119,7 +119,7 @@ resource "aws_secretsmanager_secret_version" "deduplication-api_env" {
     MILVUS_DB_SECURE : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_SECURE"].secret_string,
     MILVUS_DB_COLLECTION_NAME : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_COLLECTION_NAME"].secret_string,
     MILVUS_SEARCH_THRESHOLD : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_SEARCH_THRESHOLD"].secret_string,
-    MODEL_NAME : data.aws_secretsmanager_secret_version.deduplication-api["MODEL_NAME"].secret_string,
+    MODEL_NAME : data.aws_secretsmanager_secret_version.deduplication-api["MODEL_NAME"].secret_string
   })
 }
 
