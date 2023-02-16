@@ -72,23 +72,23 @@ resource "aws_secretsmanager_secret_version" "veritoplama_env" {
 }
 
 resource "aws_ecs_task_definition" "veritoplama_api" {
-  family                   = "veritoplama_api"
+  family                   = "veritoplama-api"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 2048
-  memory                   = 4096
+  cpu                      = 512
+  memory                   = 1024
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {
       name   = "container-name"
       image  = "nginx:latest"
-      cpu    = 2048
-      memory = 4096
+      cpu    = 512
+      memory = 1024
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/veritoplama_api"
+          awslogs-group         = "/ecs/veritoplama-api"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -117,13 +117,13 @@ resource "aws_lb_target_group" "veritoplama_api" {
     protocol = "HTTP"
   }
   tags = {
-    Name        = "depremio-tg"
+    Name        = "veritoplama-api-tg"
     Environment = var.environment
   }
 }
 
 resource "aws_ecs_service" "veritoplama_api" {
-  name            = "veritoplama_api"
+  name            = "veritoplama-api"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.veritoplama_api.id
   desired_count   = 1
@@ -177,7 +177,7 @@ resource "aws_lb" "veritoplama_api" {
   enable_deletion_protection = true
 
   tags = {
-    Name = "depremio-alb"
+    Name = "veritoplama-api-alb"
   }
 }
 
