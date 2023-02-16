@@ -177,7 +177,7 @@ resource "aws_docdb_cluster" "veritoplama" {
 
 resource "aws_docdb_cluster_instance" "veritoplama" {
   count              = 1
-  identifier         = "veritoplama-${count.index}"
+  identifier         = "veritoplama-${count.index + 1}"
   cluster_identifier = aws_docdb_cluster.veritoplama.id
   instance_class     = "db.t3.medium"
 }
