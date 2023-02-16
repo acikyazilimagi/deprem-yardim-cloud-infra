@@ -163,16 +163,17 @@ resource "aws_wafv2_web_acl_association" "veritoplama_api" {
 }
 
 resource "aws_docdb_cluster" "veritoplama" {
-  cluster_identifier     = "veritoplama"
-  engine                 = "docdb"
-  engine_version         = "4.0.0"
-  availability_zones     = ["${var.region}a", "${var.region}b"]
-  master_username        = data.aws_secretsmanager_secret_version.veritoplama["docdb_user"].secret_string
-  master_password        = data.aws_secretsmanager_secret_version.veritoplama["docdb_pass"].secret_string
-  vpc_security_group_ids = [aws_security_group.veritoplama_docdb.id]
-  db_subnet_group_name   = aws_docdb_subnet_group.veritoplama.id
-  deletion_protection    = true
-  skip_final_snapshot    = true
+  cluster_identifier              = "veritoplama"
+  engine                          = "docdb"
+  engine_version                  = "4.0.0"
+  availability_zones              = ["${var.region}a", "${var.region}b"]
+  master_username                 = data.aws_secretsmanager_secret_version.veritoplama["docdb_user"].secret_string
+  master_password                 = data.aws_secretsmanager_secret_version.veritoplama["docdb_pass"].secret_string
+  vpc_security_group_ids          = [aws_security_group.veritoplama_docdb.id]
+  db_subnet_group_name            = aws_docdb_subnet_group.veritoplama.id
+  db_cluster_parameter_group_name = aws_docdb_cluster_parameter_group.veritoplama.id
+  deletion_protection             = true
+  skip_final_snapshot             = true
 }
 
 resource "aws_docdb_cluster_instance" "veritoplama" {
@@ -180,6 +181,17 @@ resource "aws_docdb_cluster_instance" "veritoplama" {
   identifier         = "veritoplama-${count.index + 1}"
   cluster_identifier = aws_docdb_cluster.veritoplama.id
   instance_class     = "db.t3.medium"
+}
+
+resource "aws_docdb_cluster_parameter_group" "veritoplama" {
+  family      = "docdb4.0"
+  name        = "veritoplama"
+  description = "veritoplama docdb parameter group"
+
+  parameter {
+    name  = "tls"
+    value = "disabled"
+  }
 }
 
 resource "aws_docdb_subnet_group" "veritoplama" {
