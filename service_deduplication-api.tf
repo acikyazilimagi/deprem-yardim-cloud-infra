@@ -104,7 +104,7 @@ resource "aws_ecs_service" "deduplication-api-service" {
   }
 }
 
-resource "aws_secretsmanager_secret" "deduplication-api_env" {
+resource "aws_secretsmanager_secret" "fraudetect-prod-env" { # will change
   name = "deduplication-api_env"
 }
 
