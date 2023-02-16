@@ -38,7 +38,7 @@ resource "aws_ecs_service" "go-consumer-service" {
 
   network_configuration {
     subnets          = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
-    security_groups  = [aws_security_group.allow-http-sg.id]
+    security_groups  = [aws_security_group.service-sg.id]
     assign_public_ip = true
   }
 
