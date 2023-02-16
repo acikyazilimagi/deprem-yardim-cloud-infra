@@ -209,5 +209,5 @@ resource "aws_security_group_rule" "veritoplama_docdb" {
   protocol          = "tcp"
   from_port         = 27017
   to_port           = 27017
-  source_security_group_id = [aws_security_group.ecs-default-sg.id]
+  source_security_group_id = aws_security_group.ecs-default-sg.id
 }
