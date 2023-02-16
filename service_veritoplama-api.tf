@@ -166,7 +166,7 @@ resource "aws_docdb_cluster" "veritoplama" {
   cluster_identifier              = "veritoplama"
   engine                          = "docdb"
   engine_version                  = "4.0.0"
-  availability_zones              = ["${var.region}a", "${var.region}b"]
+  availability_zones              = ["${var.region}a", "${var.region}b", "${var.region}c"]
   master_username                 = data.aws_secretsmanager_secret_version.veritoplama["docdb_user"].secret_string
   master_password                 = data.aws_secretsmanager_secret_version.veritoplama["docdb_pass"].secret_string
   vpc_security_group_ids          = [aws_security_group.veritoplama_docdb.id]
@@ -179,14 +179,13 @@ resource "aws_docdb_cluster" "veritoplama" {
 resource "aws_docdb_cluster_instance" "veritoplama" {
   count              = 1
   identifier         = "veritoplama-${count.index + 1}"
-  cluster_identifier = aws_docdb_cluster.veritoplama.id
+  cluster_identifier = "veritoplama"
   instance_class     = "db.t3.medium"
 }
 
 resource "aws_docdb_cluster_parameter_group" "veritoplama" {
   family      = "docdb4.0"
   name        = "veritoplama"
-  description = "veritoplama docdb parameter group"
 
   parameter {
     name  = "tls"
