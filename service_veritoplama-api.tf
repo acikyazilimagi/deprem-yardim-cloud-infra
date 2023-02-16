@@ -202,3 +202,12 @@ resource "aws_security_group" "veritoplama_docdb" {
   name   = "veritoplama-docdb"
   vpc_id = aws_vpc.vpc.id
 }
+
+resource "aws_security_group_rule" "veritoplama_docdb" {
+  security_group_id = aws_security_group.veritoplama_docdb.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 27017
+  to_port           = 27017
+  source_security_group_id = [aws_security_group.ecs-default-sg.id]
+}
