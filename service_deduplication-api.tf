@@ -75,7 +75,7 @@ resource "aws_lb_target_group" "deduplication-api-tg" {
   }
 }
 
-resource "aws_ecs_service" "deduplication-api" {
+resource "aws_ecs_service" "deduplication-api-service" {
   name            = "deduplication-api"
   cluster         = aws_ecs_cluster.base-cluster.id
   task_definition = aws_ecs_task_definition.deduplication-api-TD.id
