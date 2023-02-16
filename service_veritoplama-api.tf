@@ -166,7 +166,7 @@ resource "aws_docdb_cluster" "veritoplama" {
   cluster_identifier     = "veritoplama"
   engine                 = "docdb"
   engine_version         = "4.0.0"
-  availability_zones     = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  availability_zones     = ["${var.region}a", "${var.region}b"]
   master_username        = data.aws_secretsmanager_secret_version.veritoplama["docdb_user"].secret_string
   master_password        = data.aws_secretsmanager_secret_version.veritoplama["docdb_pass"].secret_string
   vpc_security_group_ids = [aws_security_group.veritoplama_docdb.id]
