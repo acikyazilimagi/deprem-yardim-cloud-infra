@@ -1,8 +1,6 @@
 locals {
   veritoplama = {
     secrets = {
-      db_user   = "/projects/veritoplama/db/user"
-      db_pass   = "/projects/veritoplama/db/pass"
       mongo_uri = "/projects/veritoplama/mongo/uri"
     }
   }
@@ -37,25 +35,6 @@ resource "aws_db_subnet_group" "veritoplama" {
   subnet_ids = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
 }
 
-resource "aws_rds_cluster" "veritoplama_api" {
-  cluster_identifier      = "veritoplama-api"
-  engine                  = "aurora-postgresql"
-  engine_mode             = "serverless"
-  availability_zones      = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  database_name           = "veritoplama"
-  backup_retention_period = 5
-  master_username         = data.aws_secretsmanager_secret_version.veritoplama["db_user"].secret_string
-  master_password         = data.aws_secretsmanager_secret_version.veritoplama["db_pass"].secret_string
-  vpc_security_group_ids  = [aws_security_group.veritoplama.id]
-  db_subnet_group_name    = aws_db_subnet_group.veritoplama.id
-  deletion_protection     = true
-  skip_final_snapshot     = true
-
-  lifecycle {
-    ignore_changes = [scaling_configuration]
-  }
-}
-
 resource "aws_secretsmanager_secret" "veritoplama_env" {
   name = "veritoplama-prod-env"
 }
@@ -63,10 +42,6 @@ resource "aws_secretsmanager_secret" "veritoplama_env" {
 resource "aws_secretsmanager_secret_version" "veritoplama_env" {
   secret_id = aws_secretsmanager_secret.veritoplama_env.id
   secret_string = jsonencode({
-    PG_HOST : aws_rds_cluster.veritoplama_api.endpoint
-    PG_PORT : aws_rds_cluster.veritoplama_api.port
-    PG_USER : aws_rds_cluster.veritoplama_api.master_username
-    PG_PASS : aws_rds_cluster.veritoplama_api.master_password
     MONGO_URL : data.aws_secretsmanager_secret_version.veritoplama["mongo_uri"].secret_string
   })
 }
