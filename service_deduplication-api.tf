@@ -14,6 +14,15 @@ locals {
   }
 }
 
+data "aws_secretsmanager_secret" "deduplication-api" {
+  for_each = local.deduplication-api.secrets
+  name     = each.value
+}
+
+data "aws_secretsmanager_secret_version" "deduplication-api" {
+  for_each  = local.deduplication-api.secrets
+  secret_id = data.aws_secretsmanager_secret.deduplication-api[each.key].id
+}
 
 resource "aws_ecs_task_definition" "deduplication-api-TD" {
   family                   = "deduplication-api-TD"
@@ -102,15 +111,15 @@ resource "aws_secretsmanager_secret" "deduplication-api_env" {
 resource "aws_secretsmanager_secret_version" "deduplication-api_env" {
   secret_id     = aws_secretsmanager_secret.deduplication-api_env.id
   secret_string = jsonencode({
-    DEDUPLICATION_API_KEY : data.aws_secretsmanager_secret_version.afetlojistik-api["DEDUPLICATION_API_KEY"].secret_string,
-    MILVUS_DB_ALIAS : data.aws_secretsmanager_secret_version.afetlojistik-api["MILVUS_DB_ALIAS"].secret_string,
-    MILVUS_DB_URI : data.aws_secretsmanager_secret_version.afetlojistik-api["MILVUS_DB_URI"].secret_string,
-    MILVUS_DB_USERNAME : data.aws_secretsmanager_secret_version.afetlojistik-api["MILVUS_DB_USERNAME"].secret_string,
-    MILVUS_DB_PASSWORD : data.aws_secretsmanager_secret_version.afetlojistik-api["MILVUS_DB_PASSWORD"].secret_string,
-    MILVUS_DB_SECURE : data.aws_secretsmanager_secret_version.afetlojistik-api["MILVUS_DB_SECURE"].secret_string,
-    MILVUS_DB_COLLECTION_NAME : data.aws_secretsmanager_secret_version.afetlojistik-api["MILVUS_DB_COLLECTION_NAME"].secret_string,
-    MILVUS_SEARCH_THRESHOLD : data.aws_secretsmanager_secret_version.afetlojistik-api["MILVUS_SEARCH_THRESHOLD"].secret_string,
-    MODEL_NAME : data.aws_secretsmanager_secret_version.afetlojistik-api["MODEL_NAME"].secret_string,
+    DEDUPLICATION_API_KEY : data.aws_secretsmanager_secret_version.deduplication-api["DEDUPLICATION_API_KEY"].secret_string,
+    MILVUS_DB_ALIAS : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_ALIAS"].secret_string,
+    MILVUS_DB_URI : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_URI"].secret_string,
+    MILVUS_DB_USERNAME : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_USERNAME"].secret_string,
+    MILVUS_DB_PASSWORD : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_PASSWORD"].secret_string,
+    MILVUS_DB_SECURE : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_SECURE"].secret_string,
+    MILVUS_DB_COLLECTION_NAME : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_COLLECTION_NAME"].secret_string,
+    MILVUS_SEARCH_THRESHOLD : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_SEARCH_THRESHOLD"].secret_string,
+    MODEL_NAME : data.aws_secretsmanager_secret_version.deduplication-api["MODEL_NAME"].secret_string,
   })
 }
 
