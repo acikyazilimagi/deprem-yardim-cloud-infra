@@ -62,14 +62,14 @@ resource "aws_lb" "deduplication-nlb" {
   }
 }
 
-resource "aws_lb_target_group" "deduplication-tg" {
-  name        = "deduplication-tg"
+resource "aws_lb_target_group" "deduplication-tg-0" {
+  name        = "deduplication-tg-0"
   port        = 19530
   protocol    = "TCP"
   target_type = "instance"
   vpc_id      = data.aws_vpc.selected.id
   tags = {
-    Name        = "deduplication-tg"
+    Name        = "deduplication-tg-0"
     Environment = var.environment
   }
 }
@@ -81,7 +81,7 @@ resource "aws_lb_listener" "deduplication-nlb-listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.deduplication-tg.arn
+    target_group_arn = aws_lb_target_group.deduplication-tg-0.arn
   }
   depends_on = [
     aws_lb.deduplication-nlb
@@ -107,7 +107,7 @@ resource "aws_lb_listener" "deduplication-nlb-listener-2" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.deduplication-tg.arn
+    target_group_arn = aws_lb_target_group.deduplication-tg-0.arn
   }
   depends_on = [
     aws_lb.deduplication-nlb
@@ -115,7 +115,7 @@ resource "aws_lb_listener" "deduplication-nlb-listener-2" {
 }
 
 resource "aws_lb_target_group_attachment" "deduplication-19530" {
-  target_group_arn = aws_lb_target_group.deduplication-tg.arn
+  target_group_arn = aws_lb_target_group.deduplication-tg-0.arn
   target_id        = aws_instance.deduplication.id
   port             = 19530
 }
