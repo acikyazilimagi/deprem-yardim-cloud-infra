@@ -105,10 +105,10 @@ resource "aws_ecs_service" "deduplication-api-service" {
 }
 
 resource "aws_secretsmanager_secret" "fraudetect-prod-env" { # will change
-  name = "deduplication-api_env"
+  name = "fraudetect-prod-env"
 }
 
-resource "aws_secretsmanager_secret_version" "deduplication-api_env" {
+resource "aws_secretsmanager_secret_version" "fraudetect-prod-env" {
   secret_id     = aws_secretsmanager_secret.fraudetect-prod-env.id
   secret_string = jsonencode({
     DEDUPLICATION_API_KEY : data.aws_secretsmanager_secret_version.deduplication-api["DEDUPLICATION_API_KEY"].secret_string,
