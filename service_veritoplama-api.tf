@@ -116,9 +116,9 @@ resource "aws_lb_target_group" "veritoplama_api" {
     port     = 80
     protocol = "HTTP"
     healthy_threshold   = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 3
     timeout             = 5
-    interval            = 15
+    interval            = 10
   }
   tags = {
     Name        = "veritoplama-api-tg"

@@ -39,9 +39,13 @@ resource "aws_lb_target_group" "api-go-tg" {
   vpc_id      = aws_vpc.vpc.id
   health_check {
     enabled  = true
-    path     = "/healthcheck/"
+    path     = "/healthcheck"
     port     = 80
     protocol = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 10
   }
   tags = {
     Name        = "api-go-tg"
