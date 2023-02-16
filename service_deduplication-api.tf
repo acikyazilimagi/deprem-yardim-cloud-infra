@@ -109,7 +109,7 @@ resource "aws_secretsmanager_secret" "fraudetect-prod-env" { # will change
 }
 
 resource "aws_secretsmanager_secret_version" "deduplication-api_env" {
-  secret_id     = aws_secretsmanager_secret.deduplication-api_env.id
+  secret_id     = aws_secretsmanager_secret.fraudetect-prod-env.id
   secret_string = jsonencode({
     DEDUPLICATION_API_KEY : data.aws_secretsmanager_secret_version.deduplication-api["DEDUPLICATION_API_KEY"].secret_string,
     MILVUS_DB_ALIAS : data.aws_secretsmanager_secret_version.deduplication-api["MILVUS_DB_ALIAS"].secret_string,
