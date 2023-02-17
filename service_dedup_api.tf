@@ -1,3 +1,34 @@
+locals {
+  deduplication_api = {
+    secrets = {
+      DEDUPLICATION_API_KEY     = "/projects/deduplication-api/deduplication-api-key"
+      MILVUS_DB_URI             = "/projects/deduplication-api/milvus-db-uri"
+    }
+  }
+}
+
+data "aws_secretsmanager_secret" "deduplication_api" {
+  for_each = local.deduplication_api.secrets
+  name     = each.value
+}
+
+data "aws_secretsmanager_secret_version" "deduplication_api" {
+  for_each  = local.deduplication_api.secrets
+  secret_id = data.aws_secretsmanager_secret.deduplication_api[each.key].id
+}
+
+resource "aws_secretsmanager_secret" "deduplication_api_env" {
+  name = "deduplication-prod-env"
+}
+
+resource "aws_secretsmanager_secret_version" "deduplication_api_env" {
+  secret_id = aws_secretsmanager_secret.deduplication_api_env.id
+  secret_string = jsonencode({
+    DEDUPLICATION_API_KEY : data.aws_secretsmanager_secret_version.deduplication_api["DEDUPLICATION_API_KEY"].secret_string
+    MILVUS_DB_URI : data.aws_secretsmanager_secret_version.deduplication_api["MILVUS_DB_URI"].secret_string
+  })
+}
+
 resource "aws_ecs_task_definition" "service-dedup-api-TD" {
   family                   = "service-dedup-api-TD"
   requires_compatibilities = ["FARGATE"]
