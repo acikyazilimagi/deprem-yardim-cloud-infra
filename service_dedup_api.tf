@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "service_dedup_api-TD" {
-  family                   = "service_dedup_api-TD"
+resource "aws_ecs_task_definition" "service-dedup-api-TD" {
+  family                   = "service-dedup-api-TD"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 1024
@@ -8,14 +8,14 @@ resource "aws_ecs_task_definition" "service_dedup_api-TD" {
   container_definitions = jsonencode([
     {
       name   = "container-name"
-      image  = "service_dedup_api"
+      image  = "service-dedup-api"
       cpu    = 1024
       memory = 2048
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/service_dedup_api"
+          awslogs-group         = "/ecs/service-dedup-api"
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -31,8 +31,8 @@ resource "aws_ecs_task_definition" "service_dedup_api-TD" {
   ])
 }
 
-resource "aws_lb_target_group" "service_dedup_api-tg" {
-  name        = "service_dedup_api-tg"
+resource "aws_lb_target_group" "service-dedup-api-tg" {
+  name        = "service-dedup-api-tg"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -44,20 +44,20 @@ resource "aws_lb_target_group" "service_dedup_api-tg" {
     protocol = "HTTP"
   }
   tags = {
-    Name        = "service_dedup_api-tg"
+    Name        = "service-dedup-api-tg"
     Environment = var.environment
   }
 }
 
-resource "aws_ecs_service" "service_dedup_api-service" {
-  name            = "service_dedup_api-service"
+resource "aws_ecs_service" "service-dedup-api-service" {
+  name            = "service-dedup-api-service"
   cluster         = aws_ecs_cluster.base-cluster.id
-  task_definition = aws_ecs_task_definition.service_dedup_api-TD.id
+  task_definition = aws_ecs_task_definition.service-dedup-api-TD.id
   desired_count   = 1
   depends_on = [
     aws_ecs_cluster.base-cluster,
-    aws_ecs_task_definition.service_dedup_api-TD,
-    aws_lb_target_group.service_dedup_api-tg,
+    aws_ecs_task_definition.service-dedup-api-TD,
+    aws_lb_target_group.service-dedup-api-tg,
   ]
   launch_type = "FARGATE"
 
@@ -68,7 +68,7 @@ resource "aws_ecs_service" "service_dedup_api-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.service_dedup_api-tg.arn
+    target_group_arn = aws_lb_target_group.service-dedup-api-tg.arn
     container_name   = "container-name"
     container_port   = 80
   }
@@ -79,13 +79,13 @@ resource "aws_ecs_service" "service_dedup_api-service" {
 }
 
 
-resource "aws_lb_listener_rule" "service_dedup_api-rule" {
-  listener_arn = aws_lb_listener.service_dedup_api-alb-listener.arn
+resource "aws_lb_listener_rule" "service-dedup-api-rule" {
+  listener_arn = aws_lb_listener.service-dedup-api-alb-listener.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.service_dedup_api-tg.arn
+    target_group_arn = aws_lb_target_group.service-dedup-api-tg.arn
   }
 
   condition {
@@ -95,8 +95,8 @@ resource "aws_lb_listener_rule" "service_dedup_api-rule" {
   }
 }
 
-resource "aws_lb" "service_dedup_api-alb" {
-  name               = "service_dedup_api-alb"
+resource "aws_lb" "service-dedup-api-alb" {
+  name               = "service-dedup-api-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = ["sg-09d6376212dfa6ea1"] // Todo change
@@ -105,25 +105,25 @@ resource "aws_lb" "service_dedup_api-alb" {
   enable_deletion_protection = true
 
   tags = {
-    Name = "service_dedup_api-alb"
+    Name = "service-dedup-api-alb"
   }
 }
 
-resource "aws_wafv2_web_acl_association" "service_dedup_api-alb" {
-  resource_arn = aws_lb.service_dedup_api-alb.arn
+resource "aws_wafv2_web_acl_association" "service-dedup-api-alb" {
+  resource_arn = aws_lb.service-dedup-api-alb.arn
   web_acl_arn  = aws_wafv2_web_acl.generic.arn
 }
 
-resource "aws_lb_listener" "service_dedup_api-alb-listener" {
-  load_balancer_arn = aws_lb.service_dedup_api-alb.arn
+resource "aws_lb_listener" "service-dedup-api-alb-listener" {
+  load_balancer_arn = aws_lb.service-dedup-api-alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.service_dedup_api-tg.arn
+    target_group_arn = aws_lb_target_group.service-dedup-api-tg.arn
   }
   depends_on = [
-    aws_lb.service_dedup_api-alb
+    aws_lb.service-dedup-api-alb
   ]
 }
