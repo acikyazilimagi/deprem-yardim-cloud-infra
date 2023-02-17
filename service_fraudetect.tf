@@ -22,6 +22,7 @@ data "aws_secretsmanager_secret_version" "fraudetect" {
 
 resource "aws_security_group" "fraudetect_db" {
   name   = "fraudetect-db"
+  description = "Managed by Terraform"
   vpc_id = aws_vpc.vpc.id
 }
 
