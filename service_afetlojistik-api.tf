@@ -26,6 +26,7 @@ data "aws_secretsmanager_secret_version" "afetlojistik-api" {
 }
 
 resource "aws_security_group" "afetlojistik-api_db" {
+  description = "Managed by Terraform"
   name   = "afetlojistik-api-db"
   vpc_id = aws_vpc.vpc.id
 }
