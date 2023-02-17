@@ -102,7 +102,7 @@ resource "aws_lb" "afetlojistik-ui" {
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
   enable_deletion_protection = true
-
+  drop_invalid_header_fields = true
   tags = {
     Name = "depremio-alb"
   }
